@@ -10,7 +10,7 @@
   "source": {
     "source": "github",
     "url": "https://github.com/bypabloc/claude-plugin-spanish-latam.git",
-    "ref": "master"
+    "ref": "main"
   },
   "homepage": "https://github.com/bypabloc/claude-plugin-spanish-latam"
 }
