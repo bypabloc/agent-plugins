@@ -1,0 +1,15 @@
+{
+  "event": {
+    "id": "evt_1fa3ccf82001kWDw2pmOdxVtCd",
+    "created": 1795199651714,
+    "type": "session.execution.succeeded",
+    "durable": {
+      "aggregateID": "ses_e05c336e8ffeyTuOROvd6TO60e",
+      "seq": 61,
+      "version": 1
+    },
+    "data": {
+      "sessionID": "ses_e05c336e8ffeyTuOROvd6TO60e"
+    }
+  }
+}

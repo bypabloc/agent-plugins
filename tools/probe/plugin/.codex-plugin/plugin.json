@@ -1,0 +1,6 @@
+{
+  "name": "probe",
+  "version": "0.0.1",
+  "description": "Sonda de payloads de hooks (spec 001 · F1). Solo para pruebas.",
+  "hooks": "./codex-hooks.json"
+}

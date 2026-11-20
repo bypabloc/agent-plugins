@@ -1,0 +1,30 @@
+{
+  "event": {
+    "tool": "read",
+    "sessionID": "ses_e05c1879bffeAmoGAg706sxn5H",
+    "agent": "build",
+    "messageID": "msg_1fa3e8540001QDJn7YnUfgyWt7",
+    "id": "call_1795199763782",
+    "input": {
+      "path": "README.md"
+    },
+    "status": "completed",
+    "result": {
+      "output": {
+        "type": "text",
+        "content": "# Repo de prueba\n\nContenido de ejemplo.\n\r\n",
+        "offset": 1,
+        "lineCount": 4
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Read file README.md, lines 1-4\n1: # Repo de prueba\n2: \n3: Contenido de ejemplo.\n4: \r"
+        }
+      ],
+      "metadata": {
+        "truncated": false
+      }
+    }
+  }
+}

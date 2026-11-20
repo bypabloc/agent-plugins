@@ -1,0 +1,18 @@
+{
+  "providers": {
+    "fake": {
+      "name": "Fake",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "env": ["FAKE_LLM_KEY"],
+      "settings": { "baseURL": "http://127.0.0.1:18080/v1" },
+      "models": { "scripted": { "name": "Scripted" } }
+    }
+  },
+  "model": { "providerID": "fake", "model": "scripted" },
+  "agents": {
+    "title": { "model": { "providerID": "fake", "model": "scripted" } },
+    "summary": { "model": { "providerID": "fake", "model": "scripted" } },
+    "compaction": { "model": { "providerID": "fake", "model": "scripted" } }
+  },
+  "plugins": @PLUGINS@
+}
