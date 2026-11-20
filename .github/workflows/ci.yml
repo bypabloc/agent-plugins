@@ -56,6 +56,13 @@ jobs:
         shell: bash
       # Los tests importan claude-code/testing: solo los resuelve `claude plugin test`
       - run: claude plugin test plugins/session-handoff
+      - uses: oven-sh/setup-bun@v2
+      # Acciones y hosts (Codex, Antigravity) y el bundle versionado al día con el código
+      - run: bun test tests/cli
+        working-directory: plugins/session-handoff
+      - run: bun run build && git diff --exit-code dist/
+        working-directory: plugins/session-handoff
+        shell: bash
 
   repo:
     name: manifiestos y scripts
