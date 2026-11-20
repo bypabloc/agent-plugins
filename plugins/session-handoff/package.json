@@ -4,9 +4,9 @@
   "description": "Handoff de sesión en disco para OpenCode V2 (en proceso), Codex y Antigravity (dist/hook.mjs con node).",
   "type": "module",
   "exports": { ".": "./adapters/opencode/index.ts" },
-  "files": ["adapters/opencode", "hooks", "dist", "types"],
+  "files": ["adapters/opencode", "cli", "hooks", "dist", "types"],
   "scripts": {
-    "build": "bun build hooks/cli.ts --target=node --format=esm --outfile=dist/hook.mjs",
+    "build": "bun build cli/cli.ts --target=node --format=esm --outfile=dist/hook.mjs",
     "test": "bun test tests/cli && claude plugin test ."
   },
   "engines": { "node": ">=20", "opencode": ">=2.3.0" },

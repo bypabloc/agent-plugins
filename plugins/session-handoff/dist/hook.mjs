@@ -1,4 +1,4 @@
-// hooks/cli.ts
+// cli/cli.ts
 import { readFileSync } from "node:fs";
 
 // hooks/handoff.ts
@@ -595,7 +595,7 @@ function neutral(host, event) {
   return emit(host, event, null);
 }
 
-// hooks/io-node.ts
+// cli/io-node.ts
 import { execFile } from "node:child_process";
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -621,7 +621,7 @@ var nodeIo = {
   })
 };
 
-// hooks/cli.ts
+// cli/cli.ts
 var HOSTS = ["codex", "antigravity"];
 var EVENTS = ["session-start", "prompt", "post-tool", "stop", "ask-question", "pre-invocation"];
 var MIN_NODE = 20;

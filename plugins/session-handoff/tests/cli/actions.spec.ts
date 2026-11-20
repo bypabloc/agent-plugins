@@ -1,3 +1,4 @@
+// @ts-nocheck — corre en Bun (bun:test, node:fs), no en el motor de mods que tipa `claude plugin validate`
 // Acciones y emisión para Codex y Antigravity (spec 001 · 04 §3.2). Corre con: bun test tests/cli
 // (los tests de register.tsx usan claude-code/testing y corren con `claude plugin test .`).
 import { describe, expect, test } from 'bun:test'

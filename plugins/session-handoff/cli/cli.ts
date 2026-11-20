@@ -5,10 +5,10 @@
  */
 import { readFileSync } from 'node:fs'
 
-import { VERSION } from './handoff'
-import { handle, type HostEvent, neutral, type SubprocessHost } from './hosts'
+import { VERSION } from '../hooks/handoff'
+import { handle, type HostEvent, neutral, type SubprocessHost } from '../hooks/hosts'
+import { currentWork, handoffDir, placeOf } from '../hooks/store'
 import { nodeIo } from './io-node'
-import { currentWork, handoffDir, placeOf } from './store'
 
 const HOSTS: SubprocessHost[] = ['codex', 'antigravity']
 const EVENTS: HostEvent[] = ['session-start', 'prompt', 'post-tool', 'stop', 'ask-question', 'pre-invocation']

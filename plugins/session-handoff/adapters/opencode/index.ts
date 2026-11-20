@@ -6,7 +6,7 @@
 //   session.execution.succeeded → fin del turno: si el trabajo sigue, se reinyecta el siguiente paso (V-25)
 import * as actions from '../../hooks/actions'
 import { patchPaths } from '../../hooks/hosts'
-import { nodeIo } from '../../hooks/io-node'
+import { nodeIo } from '../../cli/io-node'
 import { loadState, saveState } from '../../hooks/state'
 import { logEvent, placeOf } from '../../hooks/store'
 
