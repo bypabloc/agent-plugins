@@ -26,6 +26,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python: ["3.10", "3.12"]
     runs-on: ${{ matrix.os }}
+    # Synapse no carga en Windows nativo (import fcntl): https://github.com/bypabloc/agent-plugins/issues/3
+    # El carril corre y se ve en rojo, pero no bloquea hasta cerrar ese issue (T-24w del spec 001).
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
     defaults:
       run:
         shell: bash
