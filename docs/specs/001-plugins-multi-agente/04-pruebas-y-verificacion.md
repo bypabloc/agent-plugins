@@ -213,3 +213,43 @@ Los tests golden comparan byte a byte. Para cambiar un golden hace falta un comm
 | V-14 | ¿`opencode run` existe en V2 con `--dir`? | `opencode --help`, F0 |
 | V-15 | ¿Codex conserva la confianza de los hooks entre versiones del plugin con scripts idénticos? | Publicar un parche sin tocar scripts y observar `/hooks` |
 | V-16 | ¿Codex lee `.codex-plugin/plugin.json` antes que `.claude-plugin/` al instalar desde un marketplace `.claude-plugin`? | Instalación local (§01 §7.3) y `codex plugin list --json` |
+
+---
+
+## 10. Respuestas de F1 (Sondas del 2026-11-20)
+
+Las capturas se hicieron con `tools/probe/run.sh` (WSL) y `tools/probe/run.ps1` (Windows) en Codex 0.171.0, agy 1.5.13 y OpenCode 2.3.2. Los fixtures sanitizados están en `plugins/<x>/tests/fixtures/<host>/<os>/<versión>/`. Esta tabla **prevalece** sobre las suposiciones de 02 y 03.
+
+| Id | Respuesta | Efecto en la implementación |
+| :--- | :--- | :--- |
+| V-01 | `Bash.tool_input = {command: string}`, sin `workdir`. `PreToolUse` se dispara en cada comando | `normalize("codex")` toma `command` como string |
+| V-02 | Pendiente: se prueba en el E2E de Codex (T-33) | Mientras tanto, `context.dropped` |
+| V-03 | **`commandWindows` corre en PowerShell.** Solo `$env:PLUGIN_ROOT` se expande. `%PLUGIN_ROOT%` y la forma POSIX no corren | `commandWindows: "python \"$env:PLUGIN_ROOT\\hooks\\dispatch.py\" --host codex"` (y `node "$env:PLUGIN_ROOT\\dist\\hook.mjs"` en handoff) |
+| V-04 | En Windows, Antigravity ejecuta el comando relativo `node probe.mjs` con cwd en la raíz del plugin | Sirven los comandos relativos con barra normal |
+| V-05 | El `hooks.json` raíz **indexado por nombre** carga desde un plugin de workspace (`.agents/plugins/<x>/`) | Formato confirmado |
+| V-06 | agy 1.5.13 no usó `multi_replace_file_content`: hizo una escritura por archivo | Se mantiene el modo conservador para el nombre documentado |
+| V-07 | En Windows, los tres hosts mandan **PowerShell**. **Codex en Windows escribe archivos con `Set-Content -Value …` desde el shell, no con `apply_patch`** | T-28: `Set-Content`, `Add-Content` y `Out-File` cuentan como escritura (destino a `protect_files`, valor a `detect_secrets`) |
+| V-08 | Sin cambios (IDE standalone no probado) | Se documenta "CLI y App" |
+| V-10 | `execute.before`: `{tool, sessionID, agent, messageID, id, input}`. `ctx.permission.assert` existe | Shim según 02 §7.3 |
+| V-13 | `agy -p "<prompt>" --dangerously-skip-permissions --output-format json`. Los hooks corren igual | E2E de Antigravity automatizable |
+| V-14 | `opencode run` existe **sin `--dir`** (usa el cwd). Con la config global del usuario, que niega todo proveedor salvo Anthropic sin saldo, hace falta aislar `XDG_*` y usar el **modelo falso** `tools/fake-llm` | E2E de OpenCode con guion, sin costo |
+| V-21 | Codex `PostToolUse.tool_response` es **texto plano** (Bash: stdout; `apply_patch`: `Exit code: 0 … Success…`). Sin `run_in_background` | `hosts.ts` lee texto. Sin commits en segundo plano en Codex |
+| V-22 | **Sí:** la tool es `request_user_input_async` con `{questions:[{title}]}` y pasa por `PreToolUse` | Matcher `^request_user_input(_async)?$` |
+| V-23 | Pendiente: se prueba en el E2E de handoff en Antigravity (T-47) | — |
+| V-25 | **No hay `session.idle`.** El fin de turno es el evento `session.execution.succeeded` (`data.sessionID`). `ctx.session.prompt` existe | Handoff en OpenCode se suscribe a `session.execution.succeeded` |
+| V-26 | `execute.after`: `status` y `result: {output: {exitCode, output}, content: [{type, text}], metadata}` | Commits y tests se leen de `result.output.output` |
+| V-27 | La tool de preguntas es `question` y pasa por `execute.before` | Confirmado |
+
+### 10.1 Respuestas de los E2E de F3–F9
+
+| Id | Respuesta | Efecto |
+| :--- | :--- | :--- |
+| V-04 | Desde WSL no se puede probar cómo resuelve `cmd.exe` una ruta relativa con `/` (la interoperabilidad escapa las comillas). | El `hooks.json` de Synapse registra dos entradas, `hooks/run-hook.cmd` y `hooks\run-hook.cmd`: en cada SO falla la que no corresponde, y Antigravity ignora un hook que falla |
+| V-23 | **`injectSteps: [{"systemMessage": "…"}]` llega al modelo.** En el E2E, el agente siguió con el `Next step` sembrado (creó `LISTO.txt`) | Formato confirmado. `ephemeralMessage` usa la misma forma |
+| V-25 | `ctx.session.prompt` existe. En `opencode run` la continuación no se puede observar, porque el proceso sale al terminar la ejecución | La decisión (`stop.block`) se verifica; el evento `stop.continue` o `stop.continue_failed` deja la forma que funcionó, para la TUI |
+| V-24 | La forma del evento de compactación no se capturó | OpenCode usa la compactación nativa y marca la sesión: la próxima inyección dice que se compactó. La compactación sin resumen sigue siendo exclusiva de Claude Code |
+| — | `claude plugin validate --strict` tipa como mod todo `.ts` dentro de `hooks/` | El CLI Node de session-handoff vive en `cli/` (`cli.ts`, `io-node.ts`) y no en `hooks/` |
+| — | `opencode run --standalone` lee stdin hasta EOF y termina su grupo de procesos al salir | Los E2E pasan `stdin=DEVNULL` y usan el arnés `tools/probe/run.sh` |
+| — | En Windows, `protect_files` comparaba patrones con `/` contra rutas con `\`: no pedía confirmación para la configuración de agentes | Corregido (`match_path`). La CI de Windows ya es bloqueante |
+
+**Corrección de nombres en Antigravity:** agy 1.5.13 usa `read_file{Path}`, `write_file{Path, Content, Overwrite}` y `edit_file{Path, Target, Replacement}`, además de `run_command{CommandLine, WaitMsBeforeAsync}` (sin `Cwd`) y `ask_question{questions}`. Los nombres documentados (`view_file`, `write_to_file`, `replace_file_content`, `multi_replace_file_content`) **también se aceptan**, por si la App o el IDE los usan. El matcher de Synapse cubre ambos.

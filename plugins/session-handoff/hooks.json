@@ -1,0 +1,38 @@
+{
+  "session-handoff": {
+    "enabled": true,
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node dist/hook.mjs antigravity session-start",
+        "timeout": 30
+      }
+    ],
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node dist/hook.mjs antigravity pre-invocation",
+        "timeout": 30
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^ask_question$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node dist/hook.mjs antigravity ask-question",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node dist/hook.mjs antigravity stop",
+        "timeout": 30
+      }
+    ]
+  }
+}

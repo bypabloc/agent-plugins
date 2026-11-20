@@ -1,0 +1,5 @@
+{
+  "name": "probe-market",
+  "owner": { "name": "Pablo Contreras" },
+  "plugins": [{ "name": "probe", "version": "0.0.1", "source": "./plugin", "description": "Sonda de payloads" }]
+}

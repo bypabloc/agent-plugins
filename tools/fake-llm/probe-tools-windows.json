@@ -1,0 +1,8 @@
+[
+  {"tool": "shell", "args": {"command": "Get-ChildItem", "description": "listar"}},
+  {"tool": "read", "args": {"path": "README.md"}},
+  {"tool": "write", "args": {"path": "a.txt", "content": "hola"}},
+  {"tool": "edit", "args": {"path": "a.txt", "oldString": "hola", "newString": "chau"}},
+  {"tool": "shell", "args": {"command": "Remove-Item a.txt", "description": "borrar"}},
+  {"text": "DONE"}
+]

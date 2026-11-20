@@ -1,0 +1,25 @@
+{
+  "stdin": {
+    "session_id": "01a1fa3f-b90f-7181-a315-fa3bb99008c4",
+    "turn_id": "01a1fa3f-bb13-7b42-94b6-f6651dcb3a01",
+    "transcript_path": "{home}\\AppData\\Local\\Temp\\agent-plugins-probe\\codex-home\\sessions\\2026\\11\\20\\rollout-2026-11-20T13-37-23-01a1fa3f-b90f-7181-a315-fa3bb99008c4.jsonl",
+    "cwd": "{project}",
+    "hook_event_name": "PostToolUse",
+    "model": "gpt-6.2-sol",
+    "permission_mode": "bypassPermissions",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "Get-ChildItem"
+    },
+    "tool_response": "\r\n    Directorio: {home}\\projects\\user\r\n\r\nMode                 LastWriteTime         Length Name\r\n----                 -------------         ------ ----\r\nd----          18/11/2026    21:47                .claude\r\nd----          23/09/2026    21:53                .engram\r\nd----          19/09/2026    16:15                .ruff_cache\r\nd----          16/09/2026    16:01                .vscode\r\nd----          20/11/2026    09:45                claude-plugin-session-handoff\r\nd----          16/09/2026    23:12                claude-plugin-spanish-latam\r\nd----          18/11/2026    21:35                claude-plugins\r\nd----          20/11/2026    12:54                content-studio\r\nd----          20/11/2026    12:55                content-studio-worktrees\r\nd----          17/09/2026    17:51                node_modules\r\nd----          19/09/2026    22:18                src\r\nd----          23/11/2025    22:04                tenant-score\r\nd----          20/11/2026    10:48                tmp\r\nd----          18/10/2026    17:06                vraptor\r\n-a---          23/09/2026    20:46          53248 .coverage\r\n\r\n",
+    "tool_use_id": "exec-8825c01a-2999-4eda-9d73-f0f67945cb80"
+  },
+  "env": {
+    "CLAUDE_PLUGIN_DATA": "{home}\\AppData\\Local\\Temp\\agent-plugins-probe\\codex-home\\plugins\\data\\probe-probe-market",
+    "CLAUDE_PLUGIN_ROOT": "{home}\\AppData\\Local\\Temp\\agent-plugins-probe\\codex-home\\plugins\\cache\\probe-market\\probe\\0.0.1",
+    "CODEX_HOME": "{home}\\AppData\\Local\\Temp\\agent-plugins-probe\\codex-home",
+    "PLUGIN_DATA": "{home}\\AppData\\Local\\Temp\\agent-plugins-probe\\codex-home\\plugins\\data\\probe-probe-market",
+    "PLUGIN_ROOT": "{home}\\AppData\\Local\\Temp\\agent-plugins-probe\\codex-home\\plugins\\cache\\probe-market\\probe\\0.0.1"
+  },
+  "platform": "win32"
+}

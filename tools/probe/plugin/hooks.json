@@ -1,0 +1,57 @@
+{
+  "probe": {
+    "enabled": true,
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "node probe.mjs antigravity SessionStart",
+        "timeout": 30
+      }
+    ],
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node probe.mjs antigravity PreInvocation",
+        "timeout": 30
+      }
+    ],
+    "PostInvocation": [
+      {
+        "type": "command",
+        "command": "node probe.mjs antigravity PostInvocation",
+        "timeout": 30
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node probe.mjs antigravity PreToolUse",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node probe.mjs antigravity PostToolUse",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node probe.mjs antigravity Stop",
+        "timeout": 30
+      }
+    ]
+  }
+}
