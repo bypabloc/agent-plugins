@@ -45,14 +45,19 @@ def run(host: str) -> bool:
     seed_dir = seed()
     repo = WORK / f"repo-{host}"
     env = {**os.environ, "PROBE_REPO": str(repo), "PROBE_BRANCH": "feature/012-x", "PROBE_SEED": str(seed_dir),
-           "PROBE_PROMPT": "Responde solo: hola. No hagas nada más.", "FAKE_SCRIPT": str(WORK / "script.json"),
+           # Un prompt que no pide parar: "no hagas nada más" lo anota el agente como blocked — user-stop (válido)
+           "PROBE_PROMPT": "Saluda con un hola.", "FAKE_SCRIPT": str(WORK / "script.json"),
            "OPENCODE_PLUGINS_JSON": json.dumps([str(PLUGIN)]), "CODEX_MARKET": str(MONOREPO),
            "CODEX_PLUGIN_REF": "session-handoff@bypabloc-agents", "AGY_PLUGIN_DIR": str(PLUGIN)}
     env.pop("CLAUDE_PROJECT_DIR", None)
     subprocess.run(["bash", str(MONOREPO / "tools" / "probe" / "run.sh"), host, "tools"], env=env, capture_output=True,
                    stdin=subprocess.DEVNULL, timeout=900, start_new_session=True)
     seen = events(repo)
-    ok = any(e.startswith("inject") for e in seen) and "stop.block" in seen
+    # E-05: el turno no cierra con el Next step pendiente: o el Stop se bloqueó, o el agente lo hizo (LISTO.txt)
+    finished = (repo / "LISTO.txt").exists()
+    ok = any(e.startswith("inject") for e in seen) and ("stop.block" in seen or finished)
+    if finished:
+        seen.append("LISTO.txt creado")
     print(f"{'✓' if ok else '✗'} {host}: {', '.join(seen) or 'sin eventos'}")
     if host == "opencode":
         calls = (repo / "fake-llm.jsonl").read_text().splitlines() if (repo / "fake-llm.jsonl").exists() else []
