@@ -1,0 +1,9 @@
+[
+  {"tool": "shell", "args": {"command": "ls -la", "description": "listar"}},
+  {"tool": "read", "args": {"path": "README.md"}},
+  {"tool": "write", "args": {"path": "a.txt", "content": "hola"}},
+  {"tool": "edit", "args": {"path": "a.txt", "oldString": "hola", "newString": "chau"}},
+  {"tool": "shell", "args": {"command": "git add -A && git -c user.name=p -c user.email=p@example.invalid commit -q -m probe && git log -1 --format=%h", "description": "commit"}},
+  {"tool": "question", "args": {"questions": [{"question": "Color?", "header": "Color", "options": [{"label": "Azul", "description": "a"}, {"label": "Rojo", "description": "r"}]}]}},
+  {"text": "DONE"}
+]

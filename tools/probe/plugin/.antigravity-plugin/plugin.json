@@ -1,0 +1,7 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "probe",
+  "displayName": "Probe",
+  "description": "Sonda de payloads de hooks (spec 001 · F1). Solo para pruebas.",
+  "version": "0.0.1"
+}
