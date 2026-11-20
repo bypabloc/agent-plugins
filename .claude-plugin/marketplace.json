@@ -1,0 +1,29 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "bypabloc-agents",
+  "description": "Plugins multi-agente de bypabloc (Claude Code y Codex leen este marketplace)",
+  "owner": {
+    "name": "Pablo Contreras",
+    "email": "pacg1991@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "synapse",
+      "description": "Guardrails de seguridad antes de cada tool: comandos destructivos, escrituras fuera del proyecto, lectura de .env, secretos y archivos protegidos (reglas deterministas + Laya System 1).",
+      "version": "1.6.1",
+      "author": { "name": "Pablo Contreras", "url": "https://github.com/bypabloc" },
+      "category": "security",
+      "source": "./plugins/synapse",
+      "homepage": "https://github.com/bypabloc/agent-plugin-synapse"
+    },
+    {
+      "name": "session-handoff",
+      "description": "Handoff de sesión en disco para sesiones largas y varios agentes: lo reinyecta al iniciar y compactar, no deja cerrar el turno con trabajo pendiente y compacta sin resumen del modelo.",
+      "version": "0.4.4",
+      "author": { "name": "Pablo Contreras", "url": "https://github.com/bypabloc" },
+      "category": "productivity",
+      "source": "./plugins/session-handoff",
+      "homepage": "https://github.com/bypabloc/agent-plugin-session-handoff"
+    }
+  ]
+}
