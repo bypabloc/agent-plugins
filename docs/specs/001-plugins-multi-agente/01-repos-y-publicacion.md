@@ -155,7 +155,7 @@ Los archivos de hooks de Codex y Antigravity están en [02-synapse.md §7](./02-
 ### 3.2 session-handoff
 
 Usa el mismo esquema con `name: "session-handoff"`, `displayName: "Session Handoff"`, `category: "Productivity"`, `version: "0.5.0"` y `"hooks": "./adapters/codex/hooks.json"` en `.codex-plugin/plugin.json`. En `package.json` van además:
-- `"scripts": {"build": "bun build hooks/cli.ts --target=node --format=esm --outfile=dist/hook.mjs", "test": "bun test"}`
+- `"scripts": {"build": "bun build hooks/cli.ts --target=node --format=esm --outfile=dist/hook.mjs", "test": "claude plugin test ."}`. Los tests de `register.tsx` importan `claude-code/testing`, que solo resuelve `claude plugin test`; los tests nuevos del CLI (`cli.test.ts`, `state.test.ts`) también corren ahí
 - `"engines": {"node": ">=20", "opencode": ">=2.3.0"}`
 
 Los archivos de hooks están en [03-session-handoff.md §6](./03-session-handoff.md#6-cableado-por-host).
@@ -289,7 +289,7 @@ Además va `tmp/` en el `.gitignore` del proyecto, como hoy.
 
 Contenido mínimo (T-02):
 - Mapa de carpetas y regla de "cambios solo aquí".
-- Comandos de prueba por plugin (`python3 -m pytest` en `plugins/synapse`, `bun test` en `plugins/session-handoff`).
+- Comandos de prueba por plugin (`python3 -m pytest` en `plugins/synapse`, `claude plugin test .` en `plugins/session-handoff`).
 - Release (§6).
 - Política de idioma: español neutro en docs, commits y logs, y Conventional Commits con scope del plugin: `feat(synapse): …`, `fix(session-handoff): …`.
 - Enlace a los `AGENTS.md` de cada plugin, que siguen vigentes para su lógica.

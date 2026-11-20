@@ -184,7 +184,7 @@ Además, para Codex, cada salida valida contra los JSON Schema de `codex-rs/hook
 | Job | Runner | Pasos |
 | :--- | :--- | :--- |
 | `synapse` | ubuntu-latest, windows-latest × Python 3.10 y 3.12 | `python -m pytest plugins/synapse` (fallback determinista) con unit, equivalencia, contratos y protocolo |
-| `session-handoff` | ubuntu-latest, windows-latest | `bun install && bun test && bun run build && git diff --exit-code dist/` |
+| `session-handoff` | ubuntu-latest, windows-latest | `claude plugin test plugins/session-handoff` (CLI fijado con `CLAUDE_CODE_VERSION`; los tests importan `claude-code/testing`) y, desde F6, `bun run build && git diff --exit-code dist/` |
 | `manifests` | ubuntu-latest | `scripts/bump.py --check`, `claude plugin validate --strict` (CLI fijado con `CLAUDE_CODE_VERSION`), validación de schemas de Codex, `agy plugin validate --json` contra la lista permitida si `agy` se puede instalar en el runner (T-11) |
 | `mirror-dry-run` | ubuntu-latest | `git subtree split` de cada plugin y verificación de fast-forward contra el `main` del espejo (lectura pública) |
 | `e2e-live` | `workflow_dispatch` | Solo manual, con secretos y versiones fijadas (`CODEX_VERSION`, `AGY_VERSION`, `OPENCODE_VERSION`), como los carriles "live" de aidlc (H-11) |

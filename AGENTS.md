@@ -31,7 +31,7 @@ python3 -m pytest                  # determinista: unit + e2e
 python3 -m pytest --laya gpu       # con Laya en GPU (local)
 
 # session-handoff (desde plugins/session-handoff)
-bun test
+claude plugin test .               # los tests importan claude-code/testing: no corren con bun test
 
 # Todo el repo (desde la raíz)
 python3 scripts/bump.py --check
