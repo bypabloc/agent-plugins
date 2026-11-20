@@ -1,0 +1,47 @@
+name: Release
+
+# Un tag <plugin>-v<semver> sobre main publica plugins/<plugin> en su espejo (subtree split, fast-forward, LFS).
+on:
+  push:
+    tags:
+      - "synapse-v*"
+      - "session-handoff-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Plugin y versión del tag
+        id: tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          echo "plugin=${tag%-v*}" >> "$GITHUB_OUTPUT"
+          echo "version=${tag##*-v}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: El tag apunta a un commit de main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/bump.py --check
+      - name: Llave del espejo
+        env:
+          SYNAPSE_KEY: ${{ secrets.MIRROR_DEPLOY_KEY_SYNAPSE }}
+          HANDOFF_KEY: ${{ secrets.MIRROR_DEPLOY_KEY_HANDOFF }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          if [ "${{ steps.tag.outputs.plugin }}" = synapse ]; then key="$SYNAPSE_KEY"; else key="$HANDOFF_KEY"; fi
+          printf '%s\n' "$key" > ~/.ssh/mirror && chmod 600 ~/.ssh/mirror
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
+      - name: Publicar espejo
+        env:
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/mirror -o IdentitiesOnly=yes
+        run: >
+          python scripts/release.py --mirror "${{ steps.tag.outputs.plugin }}"
+          --ref "$GITHUB_SHA" --expect-version "${{ steps.tag.outputs.version }}" --push

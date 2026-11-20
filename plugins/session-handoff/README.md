@@ -1,5 +1,8 @@
 # session-handoff
 
+> [!NOTE]
+> Este repo (`bypabloc/agent-plugin-session-handoff`) es un **espejo** generado desde el monorepo [`bypabloc/agent-plugins`](https://github.com/bypabloc/agent-plugins/tree/main/plugins/session-handoff). Los issues y pull requests van allí. El soporte para Codex, Antigravity y OpenCode está en curso ([spec 001](https://github.com/bypabloc/agent-plugins/tree/main/docs/specs/001-plugins-multi-agente)).
+
 Plugin de Claude Code para **sesiones largas y trabajo con varios agentes**. Guarda el estado de cada trabajo en disco (`tmp/handoff/<trabajo>/`), lo vuelve a inyectar al iniciar, reanudar y compactar, no deja cerrar el turno mientras quede un siguiente paso y compacta sin pedirle un resumen al modelo. El estado del trabajo se ve en el spinner y en una banda sobre el prompt.
 
 Es un mod de Claude Code escrito en TypeScript: **no necesita Python, Node ni nada instalado**, funciona igual en Windows, macOS y Linux, y en cualquier proyecto con git (sin git también, tomando la carpeta actual como raíz). Nació en dos proyectos propios (klinikae y content-studio) y se separó de ellos para usarlo en cualquiera.
