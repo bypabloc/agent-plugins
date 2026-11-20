@@ -128,7 +128,7 @@ Con cada mensaje, el plugin recuerda cómo escribir el handoff: con la herramien
 
 ## Límites
 
-* Solo Claude Code: usa la API de mods (`hooks/register.tsx`). Codex o Antigravity necesitan su propio hook de handoff.
+* La compactación sin resumen, el spinner y la banda usan la API de mods (`hooks/register.tsx`): solo existen en Claude Code. En Codex, Antigravity y OpenCode corre el resto (ver [En Codex, Antigravity y OpenCode](#en-codex-antigravity-y-opencode)).
 * El tamaño del tramo que se conserva se estima en caracteres (~4 por token). Lo que no esté en el handoff ni en ese tramo se pierde: mantén `PROGRESS.md` al día.
 * Con `--resume`, los resultados de herramientas pueden volver a traer mensajes previos a la compactación.
 
@@ -144,6 +144,7 @@ claude --plugin-dir .         # probarlo en una sesión sin instalarlo
 
 El detalle de cada versión (síntoma, causa, prueba y lección), la vigilancia en sesiones reales y lo aprendido están en [docs/bitacora/](docs/bitacora/).
 
+* **0.5.0**: multi-agente. En Codex y Antigravity corre como `dist/hook.mjs` (Node 20+): inyecta el handoff, no deja cerrar el turno, rechaza la pregunta con una spec en curso y pide los hashes. En OpenCode V2 corre en proceso. En Claude Code nada cambia.
 * **0.4.5**: si otra sesión se vinculó al mismo trabajo después que esta (otro agente que lo tomó), `Stop` ya no la empuja a seguir: la suelta con `reason: handed-off` (y el dueño en `owner`) para que dos agentes no editen el mismo árbol. El recordatorio de hashes sigue igual.
 * **0.4.4**: al escribir `PROGRESS.md`, una línea `Status:`, `Phase:` o `Next step:` repetida se nombra en el acto: `Stop` lee solo la primera, y una segunda `Phase: external-wait` más abajo dejaba la sesión bloqueada hasta el tope creyendo que esperaba.
 * **0.4.3**: la nota de `Phase:` cuenta para el máximo de 120 caracteres. Desde 0.3.3 solo se medía la palabra de la fase, y una nota que crecía con cada avance llegó a más de 1000 caracteres, reinyectada en cada inicio y compactación; ahora se avisa al escribir PROGRESS.md.
