@@ -9,7 +9,7 @@ SCENARIOS=("${@:-tools question}")
 [ "${#SCENARIOS[@]}" -eq 1 ] && read -r -a SCENARIOS <<<"${SCENARIOS[0]}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PROBE="$ROOT/tools/probe"
-REPO="$ROOT/tmp/probe-repos/$HOST"
+REPO="${PROBE_REPO:-$ROOT/tmp/probe-repos/$HOST}"
 
 prompt() {
   case "$1" in
