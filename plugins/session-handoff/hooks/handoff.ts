@@ -136,11 +136,13 @@ export function continueText(c: Config): string {
 }
 
 /** How the handoff files are written: what keeps them readable after every compaction. */
-export const WRITE_TEXT =
-  'Escribe el handoff con la herramienta de archivos (Write o Edit), nunca con echo, cat o tee desde la shell. ' +
+export const writeText = (tools = 'Write o Edit'): string =>
+  `Escribe el handoff con la herramienta de archivos (${tools}), nunca con echo, cat o tee desde la shell. ` +
   'Actualízalo al empezar o retomar, tras cada commit y cada decisión, y antes de una corrida larga. Cada archivo ' +
   'es breve (idealmente menos de 60 líneas): estado actual, no bitácora; enlaza la spec en vez de copiarla. Nunca ' +
   'guardes secretos, valores de archivos de entorno ni datos personales.'
+/** The text for Claude Code (its file tools); other hosts name theirs through `writeText` (terms.ts). */
+export const WRITE_TEXT = writeText()
 
 /** A work that groups several specs (a batch) keeps one handoff and ends only after the last one. */
 export const BATCH_TEXT =
@@ -206,7 +208,7 @@ const excerpt = (text: string, name: string): string =>
     : `${text.slice(0, EXCERPT_MAX).trim()}\n… (recortado: ${text.length - EXCERPT_MAX} caracteres más; lee ${name} completo)`
 
 /** The message injected for a session with bound work, by its source event, status and phase. */
-export function boundMessage(b: Bound, c: Config): string {
+export function boundMessage(b: Bound, c: Config, writeTools?: string): string {
   const fields = progressFields(b.files['PROGRESS.md'] ?? '')
   const lines = [
     `${HEADER}${b.work} · handoff en ${b.folder}/ · rama ${b.branch || '(detached)'}`,
@@ -229,7 +231,7 @@ export function boundMessage(b: Bound, c: Config): string {
   } else {
     lines.push(continueText(c))
     if (fields.phase) lines.push(c.phases[fields.phase] ?? PHASE_TEXT[fields.phase as (typeof PHASES)[number]])
-    lines.push(WRITE_TEXT)
+    lines.push(writeText(writeTools))
   }
   lines.push(...c.context)
   const gaps = missing(fields)
@@ -257,11 +259,12 @@ export function unboundMessage(
   source: string,
   works: Array<[string, string]>,
   c: Config,
+  writeTools?: string,
 ): string {
   const lines = [
     `[session-handoff] Esta sesión (${session}) no tiene trabajo vinculado. Para un trabajo de más de un turno, ` +
       `crea ${base}/<trabajo>/ (PROGRESS.md, DECISIONS.md, NOTES.md) y escribe su nombre en ${base}/.sessions/${session}.`,
-    WRITE_TEXT,
+    writeText(writeTools),
     BATCH_TEXT,
     ...c.context,
   ]
