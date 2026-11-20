@@ -8,7 +8,20 @@ F0 Repo ──▶ F1 Sondas ──┬──▶ F2 Synapse núcleo ──┬─�
                          └──▶ F6 Handoff núcleo ───┴──▶ F7 Codex ──▶ F8 Antigravity ──▶ F9 OpenCode ─┘
 ```
 
-F2 y F6 pueden avanzar en paralelo. Dentro de cada plugin, el orden de hosts va de menor a mayor esfuerzo: Codex (formato cercano a Claude), Antigravity (bloqueo solo por JSON) y OpenCode (TS en proceso).
+F2 y F6 pueden avanzar en paralelo.
+
+## Estado (2026-11-20, lote de implementación)
+
+| Fase | Estado | Evidencia |
+| :--- | :--- | :--- |
+| F0 | ✅ salvo T-01 (lo hace el usuario) | PR #2, #5. Espejos publicados y protegidos |
+| F1 | ✅ | PR #8. 85 fixtures (3 hosts × WSL y Windows) y 04 §10 |
+| F2 | ✅ T-20…T-29 y T-24w | Golden de 162 casos idéntico. 1394 tests. CI de Windows bloqueante y en verde (#3) |
+| F3 Codex | ✅ código y protocolo · E2E: ver 04 §10.1 | El límite de uso de la cuenta de Codex frenó el E2E el 2026-11-20 |
+| F4 Antigravity | ✅ con E2E 3/3 | agy 1.5.13: `outside`, `env`, `secret` bloqueados |
+| F5 OpenCode | ✅ con E2E 3/3 · T-26 p95 54 ms | Modelo falso, `tools/fake-llm` |
+| F6–F9 handoff | ✅ con E2E en Antigravity (inyecta, bloquea `Stop` y el agente sigue) y en OpenCode (inyecta y bloquea) | 55 tests de Bun y 68 de `claude plugin test` |
+| F10 | En curso | README por agente (T-50), release (T-52/T-53) | Dentro de cada plugin, el orden de hosts va de menor a mayor esfuerzo: Codex (formato cercano a Claude), Antigravity (bloqueo solo por JSON) y OpenCode (TS en proceso).
 
 ---
 
