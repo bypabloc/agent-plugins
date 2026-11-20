@@ -46,6 +46,7 @@ F2 y F6 pueden avanzar en paralelo. Dentro de cada plugin, el orden de hosts va 
 | T-22 | `patch.py` con sus tests (Add, Update, Move, Delete, malformado) | — | Unit en verde |
 | T-23 | `evaluate(event)` y filtro por `kind` en los 4 hooks | T-21 | Golden idéntico |
 | T-24 | `dispatch.py` con combinación por precedencia y `try/except BaseException` total | T-21, T-23 | Unit en verde |
+| T-24w | **Synapse importable y verde en Windows nativo** ([#3](https://github.com/bypabloc/agent-plugins/issues/3)). La CI de F0 mostró `ModuleNotFoundError: fcntl` (`common.py` y `laya_daemon.py`): hoy Synapse no protege nada en Windows nativo. Lock portátil para la traza, daemon por TCP local (V-09) y suite completa en `windows-latest` | T-21 | Carril Windows de `ci.yml` en verde y sin `continue-on-error` |
 | T-25 | Rutas neutrales: `project_dir`, plugin root desde `__file__`, logs por host, `.synapse/` con respaldo `.claude/`, estado y clave del daemon de Laya ([02 §11](./02-synapse.md#11-rutas-neutrales)) | T-21 | Golden idéntico. `--laya gpu` en verde. Dos instalaciones de la misma versión comparten daemon |
 | T-27 | Reglas R-01…R-05 ([02 §12](./02-synapse.md#12-reglas-nuevas-o-ajustadas)) con casos en `tests/cases/*.json`. R-04 cierra la brecha de `git clone` y `git -C` | T-23 | Casos nuevos en verde. Golden de los casos viejos idéntico |
 | T-28 | Mínimo de Windows ([02 §9](./02-synapse.md#9-windows-cobertura-mínima-de-powershell-y-cmd)) | T-23, T-14 (V-07) | Casos `windows.*` en verde |
