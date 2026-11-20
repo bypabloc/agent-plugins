@@ -7,8 +7,8 @@
     "email": "pacg1991@gmail.com",
     "url": "https://github.com/bypabloc"
   },
-  "homepage": "https://github.com/bypabloc/claude-plugin-session-handoff",
-  "repository": "https://github.com/bypabloc/claude-plugin-session-handoff",
+  "homepage": "https://github.com/bypabloc/agent-plugin-session-handoff",
+  "repository": "https://github.com/bypabloc/agent-plugin-session-handoff",
   "license": "MIT",
   "keywords": ["handoff", "compaction", "long-sessions", "multi-agent", "progress", "mod"],
   "types": "./types/index.d.ts"
