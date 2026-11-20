@@ -1,6 +1,6 @@
 # Spec 001 · Plugins Multi-Agente: Synapse y session-handoff en Codex, Antigravity y OpenCode
 
-> **Estado:** aprobado para implementar · **Fecha:** 2026-11-20 · **Autor:** Pablo Contreras
+> **Estado:** ✅ implementado (synapse 1.7.0 y session-handoff 0.5.0, publicados el 2026-11-20; ver [06 · Estado](./06-tareas.md#estado-2026-11-20-lote-de-implementación)) · **Fecha:** 2026-11-20 · **Autor:** Pablo Contreras
 > **Plugins:** `synapse` 1.6.1 → **1.7.0**, `session-handoff` 0.4.4 → **0.5.0**
 > **Base:** [`docs/research/multi_agent_support/`](../../research/multi_agent_support/README.md) (corte 2026-11-19) y [`05-referencias.md`](./05-referencias.md) (cómo lo hacen otros proyectos)
 

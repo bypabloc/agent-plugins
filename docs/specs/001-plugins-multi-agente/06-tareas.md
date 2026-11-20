@@ -21,7 +21,15 @@ F2 y F6 pueden avanzar en paralelo.
 | F4 Antigravity | ✅ con E2E 3/3 | agy 1.5.13: `outside`, `env`, `secret` bloqueados |
 | F5 OpenCode | ✅ con E2E 3/3 · T-26 p95 54 ms | Modelo falso, `tools/fake-llm` |
 | F6–F9 handoff | ✅ con E2E en los 3 hosts | Antigravity: inyecta, bloquea el `Stop` y el agente sigue. Codex: inyecta y el agente completa el `Next step` antes de parar. OpenCode: inyecta y bloquea. 55 tests de Bun y 68 de `claude plugin test` |
-| F10 | En curso | README por agente (T-50), release (T-52/T-53) | Dentro de cada plugin, el orden de hosts va de menor a mayor esfuerzo: Codex (formato cercano a Claude), Antigravity (bloqueo solo por JSON) y OpenCode (TS en proceso).
+| F10 | ✅ | README por agente (T-50), AGENTS.md (T-51), tags `synapse-v1.7.0` y `session-handoff-v0.5.0` publicados en los espejos por `release.yml` (T-52/T-53), catálogo `claude-plugins` con fuente `url` (T-15) y Claude Code del autor actualizado (T-54, parcial) |
+
+**Diferido (spec 002 o tareas abiertas):**
+- T-01: el clon definitivo lo hace el usuario.
+- T-54 en Codex, Antigravity y OpenCode: instalarlos cambia la configuración global de cada agente, así que lo decide el usuario (comandos en los README).
+- Cobertura completa de PowerShell, tests POSIX que hoy son `xfail` en Windows, Laya en Windows nativo (V-09).
+- Compactación sin resumen en OpenCode (V-24).
+- Continuación del turno en OpenCode observada en la TUI (V-25).
+- T-91…T-93 opcionales. Dentro de cada plugin, el orden de hosts va de menor a mayor esfuerzo: Codex (formato cercano a Claude), Antigravity (bloqueo solo por JSON) y OpenCode (TS en proceso).
 
 ---
 

@@ -7,8 +7,14 @@ Monorepo de plugins **multi-agente** de bypabloc: un mismo plugin para **Claude 
 | [`synapse`](plugins/synapse/) | Guardrails de seguridad antes de cada tool: comandos destructivos, escrituras fuera del proyecto, lectura de `.env`, secretos y archivos protegidos (reglas deterministas + clasificador Laya) | [`bypabloc/agent-plugin-synapse`](https://github.com/bypabloc/agent-plugin-synapse) |
 | [`session-handoff`](plugins/session-handoff/) | Handoff de sesión en disco: lo reinyecta al iniciar y compactar, no deja cerrar el turno con trabajo pendiente y recuerda los hashes de los commits | [`bypabloc/agent-plugin-session-handoff`](https://github.com/bypabloc/agent-plugin-session-handoff) |
 
-> [!IMPORTANT]
-> El soporte para Codex, Antigravity y OpenCode está **especificado, aún no implementado**. Hoy ambos plugins funcionan solo en Claude Code. Plan completo: [`docs/specs/001-plugins-multi-agente/`](docs/specs/001-plugins-multi-agente/README.md).
+Desde **synapse 1.7.0** y **session-handoff 0.5.0**, ambos funcionan en Claude Code, Codex (≥ 0.171), Antigravity (`agy` ≥ 1.5.4) y OpenCode V2 (≥ 2.3), en Linux, WSL y Windows. Cada README trae la instalación por agente y sus límites. Diseño y estado: [`docs/specs/001-plugins-multi-agente/`](docs/specs/001-plugins-multi-agente/README.md).
+
+| Agente | Instalación |
+| :--- | :--- |
+| Claude Code | `claude plugin marketplace add bypabloc/agent-plugins` · `claude plugin install synapse@bypabloc-agents` (o `session-handoff@bypabloc-agents`) |
+| Codex | `codex plugin marketplace add bypabloc/agent-plugins` · `codex plugin add synapse@bypabloc-agents` · `/hooks` para confiar |
+| Antigravity | `agy plugin install https://github.com/bypabloc/agent-plugin-synapse` (o `…/agent-plugin-session-handoff`) |
+| OpenCode | `"plugins": ["@bypabloc/synapse@git+https://github.com/bypabloc/agent-plugin-synapse.git"]` en `opencode.json` |
 
 ## Estructura
 
