@@ -1,0 +1,20 @@
+{
+  "stdin": {
+    "session_id": "01a1fa36-5022-74a3-b8d7-f2fcaa57c69d",
+    "turn_id": "01a1fa36-52bf-7d50-8656-15222b94c343",
+    "transcript_path": "{monorepo}/tmp/probe-home/codex/sessions/2026/11/20/rollout-2026-11-20T13-27-06-01a1fa36-5022-74a3-b8d7-f2fcaa57c69d.jsonl",
+    "cwd": "{project}",
+    "hook_event_name": "UserPromptSubmit",
+    "model": "gpt-6.2-sol",
+    "permission_mode": "bypassPermissions",
+    "prompt": "Do these steps in order, one tool call each, without asking me anything: 1) run the shell command 'ls -la'. 2) read the file README.md with your file-reading tool. 3) create the file a.txt containing 'hola'. 4) edit a.txt replacing 'hola' with 'chau'. 5) in ONE single edit operation create b.txt and c.txt (any content). 6) run the shell command 'git add -A && git commit -q -m probe && git log -1 --format=%h'. 7) run the shell command 'sleep 1 && echo listo' in the background if your tools allow it. Then reply DONE."
+  },
+  "env": {
+    "CLAUDE_PLUGIN_DATA": "{monorepo}/tmp/probe-home/codex/plugins/data/probe-probe-market",
+    "CLAUDE_PLUGIN_ROOT": "{monorepo}/tmp/probe-home/codex/plugins/cache/probe-market/probe/0.0.1",
+    "CODEX_HOME": "{monorepo}/tmp/probe-home/codex",
+    "PLUGIN_DATA": "{monorepo}/tmp/probe-home/codex/plugins/data/probe-probe-market",
+    "PLUGIN_ROOT": "{monorepo}/tmp/probe-home/codex/plugins/cache/probe-market/probe/0.0.1"
+  },
+  "platform": "linux"
+}
