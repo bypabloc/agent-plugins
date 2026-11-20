@@ -48,8 +48,10 @@ class Handler(BaseHTTPRequestHandler):
         step = next_step(body)
         if LOG:
             with LOG.open("a", encoding="utf-8") as fh:
+                text = json.dumps(body.get("messages", []), ensure_ascii=False)
                 fh.write(json.dumps({"tools": [t.get("function", {}).get("name") for t in body.get("tools", [])],
-                                     "messages": len(body.get("messages", [])), "step": step}) + "\n")
+                                     "messages": len(body.get("messages", [])), "step": step,
+                                     "handoff_mentions": text.count("[session-handoff]")}) + "\n")
         call = None
         if "tool" in step:
             call = {"index": 0, "id": f"call_{int(time.time() * 1000)}", "type": "function",

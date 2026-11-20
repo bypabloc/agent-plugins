@@ -47,6 +47,8 @@ from pathlib import Path
 # Agregar directorio actual a sys.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import hosts  # noqa: E402
+
 from common import (
     ASK_PATTERNS,
     PROTECTED_PATTERNS,
@@ -61,6 +63,7 @@ from common import (
     run_main,
     laya_skip_reason,
     should_use_laya,
+    state_dir,
 )
 
 FILE_SENSITIVITY_QUESTIONS = {
@@ -102,6 +105,16 @@ def evaluate_target_path(file_path: str, cwd: str, tool_name: str = "Edit/Write"
     norm_path = resolve_path(file_path, cwd)
     p = Path(norm_path)
     file_name = p.name
+    # Los patrones usan '/': en Windows la ruta resuelta trae '\' y ningún patrón coincidía (Synapse dejaba pasar
+    # .claude/settings.json o .codex/config.toml sin preguntar)
+    match_path = norm_path.replace("\\", "/")
+
+    # 0. El estado de Synapse (aprobaciones de un solo uso) no lo escribe el agente (spec 001 · R-02)
+    state = os.path.realpath(str(state_dir()))
+    if os.path.realpath(norm_path) == state or os.path.realpath(norm_path).startswith(state + os.sep):
+        emit_block(f"No se puede escribir en el estado de Synapse ({state}): las aprobaciones las da el usuario.",
+                   hook_name="protect_files", tool_name=tool_name, target=file_path, decided_by="python",
+                   rule="path.synapse_state")
 
     # 1. Comprobar si es un directorio protegido
     in_protected_dir = any(part in {".git", "node_modules", ".venv"} for part in p.parts)
@@ -115,7 +128,7 @@ def evaluate_target_path(file_path: str, cwd: str, tool_name: str = "Edit/Write"
     log_step("paths", resolved=norm_path, in_protected_dir=in_protected_dir, template=is_editable_template)
     decision = {"hook_name": "protect_files", "tool_name": tool_name, "target": file_path}
     # 3. Bloqueo determinístico para patrones protegidos críticos
-    protected = next((pat for pat in PROTECTED_PATTERNS if pat in norm_path or pat == file_name), None)
+    protected = next((pat for pat in PROTECTED_PATTERNS if pat in match_path or pat == file_name), None)
     if in_protected_dir or protected:
         emit_block(
             f"No se puede modificar un archivo o directorio protegido (lockfile, .env, .git/, .venv/, node_modules/): {file_path}",
@@ -123,13 +136,13 @@ def evaluate_target_path(file_path: str, cwd: str, tool_name: str = "Edit/Write"
         )
 
     # 4. Solicitud de confirmación determinística para configuraciones de Claude
-    config = next((pat for pat in ASK_PATTERNS if pat in norm_path), None)
+    config = next((pat for pat in ASK_PATTERNS if pat in match_path), None)
     if config:
         emit_decision("ask", f"Configuración de agentes o del IDE: requiere aprobación explícita ({file_path})",
                       decided_by="python", rule="path.agent_config", evidence={"pattern": config}, **decision)
 
     # 5. Archivos de credenciales por nombre o extensión (claves, keystores, tfstate, .npmrc...)
-    if CREDENTIAL_FILE_RE.search(norm_path):
+    if CREDENTIAL_FILE_RE.search(match_path):
         log_step("credential_file", result="match")
         emit_decision("ask", f"El archivo parece guardar credenciales (clave, keystore o configuración con tokens): {file_path}",
                       decided_by="python", rule="path.credential_file", **decision)
@@ -162,19 +175,25 @@ def evaluate_target_path(file_path: str, cwd: str, tool_name: str = "Edit/Write"
     sys.exit(0)
 
 
+def evaluate(event: hosts.HookEvent) -> None:
+    """Cada ruta escrita (también el destino de un '*** Move to:'). Un archivo protegido rechaza el patch entero."""
+    if event.kind != "write":
+        return
+    cwd = event.cwd or os.getcwd()
+    for change in event.files:
+        for path in [change.path] + ([change.move_to] if change.move_to else []):
+            try:
+                evaluate_target_path(path, cwd, event.tool)
+            except SystemExit as exc:  # 'sin objeciones' sale con 0: se sigue con la próxima ruta
+                if exc.code not in (0, None) or len(event.files) == 1 and not change.move_to:
+                    raise
+
+
 def main() -> None:
     data = read_hook_input("protect_files")
     if not data:
         sys.exit(0)
-
-    tool_name = data.get("tool_name", "")
-    if tool_name not in {"Edit", "Write"}:
-        sys.exit(0)
-
-    file_path = data.get("tool_input", {}).get("file_path", "")
-    cwd = data.get("cwd") or os.getcwd()
-
-    evaluate_target_path(file_path, cwd, tool_name)
+    evaluate(hosts.normalize("claude", data))
 
 
 if __name__ == "__main__":

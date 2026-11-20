@@ -1,0 +1,67 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$PLUGIN_ROOT/dist/hook.mjs\" codex session-start",
+            "commandWindows": "node \"$env:PLUGIN_ROOT\\dist\\hook.mjs\" codex session-start",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$PLUGIN_ROOT/dist/hook.mjs\" codex prompt",
+            "commandWindows": "node \"$env:PLUGIN_ROOT\\dist\\hook.mjs\" codex prompt",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^request_user_input(_async)?$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$PLUGIN_ROOT/dist/hook.mjs\" codex ask-question",
+            "commandWindows": "node \"$env:PLUGIN_ROOT\\dist\\hook.mjs\" codex ask-question",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(Bash|apply_patch)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$PLUGIN_ROOT/dist/hook.mjs\" codex post-tool",
+            "commandWindows": "node \"$env:PLUGIN_ROOT\\dist\\hook.mjs\" codex post-tool",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$PLUGIN_ROOT/dist/hook.mjs\" codex stop",
+            "commandWindows": "node \"$env:PLUGIN_ROOT\\dist\\hook.mjs\" codex stop",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

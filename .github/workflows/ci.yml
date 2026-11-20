@@ -26,9 +26,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python: ["3.10", "3.12"]
     runs-on: ${{ matrix.os }}
-    # Synapse no carga en Windows nativo (import fcntl): https://github.com/bypabloc/agent-plugins/issues/3
-    # El carril corre y se ve en rojo, pero no bloquea hasta cerrar ese issue (T-24w del spec 001).
-    continue-on-error: ${{ matrix.os == 'windows-latest' }}
+    # Windows es bloqueante desde T-24w (#3); los tests que asumen POSIX corren como xfail (tests/conftest.py)
     defaults:
       run:
         shell: bash
@@ -58,6 +56,13 @@ jobs:
         shell: bash
       # Los tests importan claude-code/testing: solo los resuelve `claude plugin test`
       - run: claude plugin test plugins/session-handoff
+      - uses: oven-sh/setup-bun@v2
+      # Acciones y hosts (Codex, Antigravity) y el bundle versionado al día con el código
+      - run: bun test tests/cli
+        working-directory: plugins/session-handoff
+      - run: bun run build && git diff --exit-code dist/
+        working-directory: plugins/session-handoff
+        shell: bash
 
   repo:
     name: manifiestos y scripts

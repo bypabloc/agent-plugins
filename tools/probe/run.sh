@@ -9,9 +9,10 @@ SCENARIOS=("${@:-tools question}")
 [ "${#SCENARIOS[@]}" -eq 1 ] && read -r -a SCENARIOS <<<"${SCENARIOS[0]}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PROBE="$ROOT/tools/probe"
-REPO="$ROOT/tmp/probe-repos/$HOST"
+REPO="${PROBE_REPO:-$ROOT/tmp/probe-repos/$HOST}"
 
 prompt() {
+  [ -n "${PROBE_PROMPT:-}" ] && { echo "$PROBE_PROMPT"; return; }
   case "$1" in
     tools) echo "Do these steps in order, one tool call each, without asking me anything: 1) run the shell command 'ls -la'. 2) read the file README.md with your file-reading tool. 3) create the file a.txt containing 'hola'. 4) edit a.txt replacing 'hola' with 'chau'. 5) in ONE single edit operation create b.txt and c.txt (any content). 6) run the shell command 'git add -A && git commit -q -m probe && git log -1 --format=%h'. 7) run the shell command 'sleep 1 && echo listo' in the background if your tools allow it. Then reply DONE." ;;
     question) echo "Before doing anything else, ask me which color I prefer using your tool for asking the user a question (do not just write the question as text). Then stop." ;;
@@ -23,21 +24,24 @@ rm -rf "$REPO" && mkdir -p "$REPO"
 git -C "$REPO" init -q
 printf '# Repo de prueba\n\nContenido de ejemplo.\n' >"$REPO/README.md"
 git -C "$REPO" add README.md && git -C "$REPO" -c user.name=probe -c user.email=probe@example.invalid commit -q -m init
+# E2E de session-handoff: una rama con número (feature/012-x ↔ tmp/handoff/012-x/) y archivos sembrados
+[ -n "${PROBE_BRANCH:-}" ] && git -C "$REPO" checkout -q -b "$PROBE_BRANCH"
+[ -n "${PROBE_SEED:-}" ] && cp -r "$PROBE_SEED"/. "$REPO"/
 
 case "$HOST" in
   codex)
     export CODEX_HOME="$ROOT/tmp/probe-home/codex"
     rm -rf "$CODEX_HOME" && mkdir -p "$CODEX_HOME"
     cp "$HOME/.codex/auth.json" "$CODEX_HOME/auth.json"
-    codex plugin marketplace add "$PROBE" >/dev/null
-    codex plugin add probe@probe-market >/dev/null
+    codex plugin marketplace add "${CODEX_MARKET:-$PROBE}" >/dev/null
+    codex plugin add "${CODEX_PLUGIN_REF:-probe@probe-market}" >/dev/null
     for s in "${SCENARIOS[@]}"; do
       (cd "$REPO" && codex exec --json --skip-git-repo-check --dangerously-bypass-hook-trust \
-        -s workspace-write "$(prompt "$s")" >"$REPO/tmp-$s.jsonl" 2>&1) || true
+        -s "${CODEX_SANDBOX:-workspace-write}" "$(prompt "$s")" >"$REPO/tmp-$s.jsonl" 2>&1) || true
     done ;;
   antigravity)
     mkdir -p "$REPO/.agents/plugins"
-    cp -r "$PROBE/plugin" "$REPO/.agents/plugins/probe"
+    cp -r "${AGY_PLUGIN_DIR:-$PROBE/plugin}" "$REPO/.agents/plugins/$(basename "${AGY_PLUGIN_DIR:-probe}")"
     for s in "${SCENARIOS[@]}"; do
       (cd "$REPO" && agy -p "$(prompt "$s")" --dangerously-skip-permissions --output-format json \
         >"$REPO/tmp-$s.json" 2>&1) || true
