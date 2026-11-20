@@ -64,7 +64,7 @@ def prepare(plugin: str, version: str, open_pr: bool) -> int:
     return 0
 
 
-def mirror(plugin: str, ref: str, push: bool, expect: str | None) -> int:
+def mirror(plugin: str, ref: str, push: bool, expect: str | None, tag_it: bool = True) -> int:
     version = plugin_version(plugin)
     if expect and expect != version:
         print(f"✗ el tag pide {expect} pero {plugin} está en {version}", file=sys.stderr)
@@ -94,6 +94,9 @@ def mirror(plugin: str, ref: str, push: bool, expect: str | None) -> int:
         return 0
     git("lfs", "push", url, split_branch, check=False, capture=False)
     git("push", url, f"{split_branch}:refs/heads/main", capture=False)
+    if not tag_it:
+        print(f"✓ {plugin} publicado en {url} sin tag (--no-tag)")
+        return 0
     existing = subprocess.run(["git", "-C", str(ROOT), "ls-remote", "--tags", url, tag], text=True,
                               capture_output=True).stdout.split()
     if existing and existing[0] != head:
@@ -111,12 +114,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ref", default="main", help="rama o commit del monorepo a publicar (por defecto main)")
     parser.add_argument("--push", action="store_true", help="con --mirror: publicar de verdad (si no, dry-run)")
     parser.add_argument("--expect-version", help="con --mirror: falla si el plugin no está en esta versión")
+    parser.add_argument("--no-tag", action="store_true",
+                        help="con --mirror: no etiquetar (publicación sin cambio de versión)")
     parser.add_argument("--pr", action="store_true", help="sin --mirror: empujar la rama y abrir el PR a dev")
     parser.add_argument("plugin", choices=sorted(MIRRORS))
     parser.add_argument("version", nargs="?")
     args = parser.parse_args(argv)
     if args.mirror:
-        return mirror(args.plugin, args.ref, args.push, args.expect_version)
+        return mirror(args.plugin, args.ref, args.push, args.expect_version, tag_it=not args.no_tag)
     if not args.version:
         parser.error("falta la versión")
     return prepare(args.plugin, args.version, args.pr)
