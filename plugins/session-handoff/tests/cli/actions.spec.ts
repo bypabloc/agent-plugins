@@ -74,6 +74,19 @@ describe('stop', () => {
 })
 
 describe('commits, prompt and PROGRESS.md', () => {
+  test('a -q commit that failed in a hook does not ask for the old HEAD', async () => {
+    const io = memoryIo(boundWorld(), { 'log -1 --format=%h %ct': '9883811 1700000000', 'log -1 --format=%h': '9883811' })
+    const text = await actions.postTool({ ...ctx(io), now: 1_700_000_900_000,
+      event: { tool: 'shell', command: 'git commit -q -m x', output: 'error: pre-commit failed' } }) // fmt: skip
+    expect(text ?? '').not.toContain('9883811')
+  })
+
+  test('a -q commit that worked asks for its fresh hash', async () => {
+    const io = memoryIo(boundWorld(), { 'log -1 --format=%h %ct': 'abc1234 1700000000' })
+    const text = await actions.postTool({ ...ctx(io), now: 1_700_000_030_000,
+      event: { tool: 'shell', command: 'git commit -q -m x', output: '' } }) // fmt: skip
+    expect(text).toContain('abc1234')
+  })
   test('a commit asks for its hash until PROGRESS.md names it', async () => {
     const files = boundWorld()
     const io = memoryIo(files)

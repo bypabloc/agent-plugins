@@ -37,6 +37,7 @@ function world(on: On, files: Record<string, string>, git: Record<string, string
       'rev-parse --path-format=absolute --git-common-dir': `${ROOT}/.git`,
       'branch --show-current': 'feature/012-x',
       'log -1 --format=%h': 'b0c1d2e',
+      'log -1 --format=%h %ct': `b0c1d2e ${Math.floor(Date.now() / 1000)}`,
     }
     const key = e.argv.slice(1).join(' ')
     const stdout = git[key] ?? out[key]
@@ -175,6 +176,15 @@ test('a git commit in Bash asks for its hash in PROGRESS.md until it is there', 
   expect((await commit('[feature/012-x 70ff3be] feat: y')).block).toContain('70ff3be')
   files[`${ROOT}/tmp/handoff/012-x/PROGRESS.md`] = `${PENDING}Done: grupo 1 (70ff3be)\n`
   expect((await commit('[feature/012-x 70ff3be] feat: y')).block).toBeUndefined()
+})
+
+test('a -q commit that failed in a hook does not ask for the old HEAD', async ($, on) => {
+  // Seen 2026-11-21 in a project with Claude Code: the pre-commit hook failed, and the reminder asked for dev's HEAD 9883811
+  world(on, bound(), { 'log -1 --format=%h %ct': '9883811 1700000000', 'log -1 --format=%h': '9883811' })
+  const failed = await $.classic.PostToolUse({ tool_name: 'Bash', tool_input: { command: 'git commit -q -m x' },
+    tool_response: { stdout: 'error: script "loose-texts" exited with code 1' }, tool_use_id: 't9', session_id: SESSION }) // fmt: skip
+  expect(failed.block ?? '').not.toContain('9883811')
+  expect((await $.classic.Stop({ stop_hook_active: false, cwd: ROOT, session_id: SESSION })).block ?? '').not.toContain('9883811')
 })
 
 test('a hash left out survives an interruption: the next prompt and the Stop ask for it', async ($, on) => {
