@@ -6,7 +6,7 @@
 import type { HandoffConfig, WorkStatus } from '../types'
 
 /** The plugin version; equal to `.claude-plugin/plugin.json` (checked on every release). Each log line carries it. */
-export const VERSION = '0.5.1'
+export const VERSION = '0.5.2'
 
 export const FILES =['PROGRESS.md', 'DECISIONS.md', 'NOTES.md'] as const
 export const PHASES = ['implementation', 'verification', 'integration', 'external-wait', 'closing'] as const
@@ -367,9 +367,19 @@ export function stopDecision(
   return { block: decide ? `[session-handoff] ${decideText(c, fields.reason ?? 'sin motivo')}` : texts[blocks - 1]!, blocks }
 }
 
-/** Whether a Bash command makes a commit (not `git commit --help`, nor a text that names it). */
+/** Heredoc bodies out: a script or a message that names `git commit` does not run it (seen 2026-11-21). */
+const withoutHeredocs = (command: string): string =>
+  command.replace(/<<-?\s*(['"]?)(\w+)\1([^\n]*)\n[\s\S]*?\n[ \t]*\2[ \t]*(?=\n|$)/g, (_m, _q, _tag, rest: string) => `<<H${rest}`)
+
+/** Quoted text blanked to the same length, so positions still match the command. */
+const maskQuotes = (code: string): string =>
+  code.replace(/'[^']*'|"(?:\\.|[^"\\])*"/g, m =>m[0] + ' '.repeat(m.length - 2) + m[m.length - 1])
+
+const COMMIT_CALL = /(?:^|&&|;|\|\||\n)\s*git\s+(?:-[Cc]\s+\S+\s+)*commit\b([^&;\n]*)/g
+
+/** Whether a Bash command makes a commit (not `git commit --help`, nor a text or a heredoc that names it). */
 export function isCommit(command: string): boolean {
-  const calls = command.matchAll(/(?:^|&&|;|\|\||\n)\s*git\s+(?:-[Cc]\s+\S+\s+)*commit\b([^&;\n]*)/g)
+  const calls = maskQuotes(withoutHeredocs(command)).matchAll(COMMIT_CALL)
   return [...calls].some(m => !/--help|--dry-run/.test(m[1] ?? ''))
 }
 
@@ -390,17 +400,33 @@ export function freshCommit(line: string, nowMs: number): string | null {
   return m && nowMs / 1000 - Number(m[2]) <= FRESH_COMMIT_SECONDS ? m[1]! : null
 }
 
-/** Where the commit ran: the `git -C <dir>` or the `cd <dir> &&` before it, else the session's cwd. */
+/**
+ * Where the commit ran: its `git -C <dir>`, or the `cd` before it followed in order (a relative one from the previous),
+ * else the session's cwd. With two `cd`, taking the first asked for another checkout's HEAD (seen 2026-11-21).
+ */
 export function commitDir(command: string, cwd: string): string {
   const quoted = String.raw`(?:"([^"]+)"|'([^']+)'|([^\s&;|]+))`
-  const at = new RegExp(String.raw`git\s+-C\s+${quoted}\s+commit\b`).exec(command) ??
-    new RegExp(String.raw`(?:^|&&|;)\s*cd\s+${quoted}\s*&&`).exec(command)
-  const dir = at ? (at[1] ?? at[2] ?? at[3] ?? '') : ''
-  // Git Bash spells D:\x as /d/x.
-  const native = dir.replace(/^\/([a-z])\//i, (_, d: string) => `${d.toUpperCase()}:/`)
-  if (!native) return cwd
-  return /^([a-z]:)?[\\/]/i.test(native) ? native : `${cwd.replace(/[\\/]+$/, '')}/${native}`
+  const code = withoutHeredocs(command)
+  const mask = maskQuotes(code)
+  const commit = new RegExp(COMMIT_CALL.source).exec(mask)
+  const before = commit ? code.slice(0, commit.index + commit[0].length) : code
+  const pick = (m: RegExpExecArray): string => native(m[1] ?? m[2] ?? m[3] ?? '')
+  const gitC = new RegExp(String.raw`git\s+-C\s+${quoted}\s+commit\b`).exec(before)
+  if (gitC) return join(cwd, pick(gitC))
+  let dir = cwd
+  const cd = new RegExp(String.raw`(?:^|&&|;)\s*cd\s+${quoted}(?=\s*&&)`, 'g')
+  for (const m of mask.slice(0, before.length).matchAll(cd)) {
+    const real = new RegExp(cd.source).exec(code.slice(m.index))
+    if (real) dir = join(dir, pick(real))
+  }
+  return dir
 }
+
+/** Git Bash spells D:\x as /d/x. */
+const native = (dir: string): string => dir.replace(/^\/([a-z])\//i, (_, d: string) => `${d.toUpperCase()}:/`)
+
+const join = (base: string, dir: string): string =>
+  !dir ? base : /^([a-z]:)?[\/]/i.test(dir) ? dir : `${base.replace(/[\/]+$/, '')}/${dir}`
 
 /** The hashes still missing from PROGRESS.md, oldest first and without repeats. */
 export function missingHashes(hashes: string[], progress: string): string[] {
