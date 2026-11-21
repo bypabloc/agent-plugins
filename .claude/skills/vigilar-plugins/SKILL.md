@@ -16,6 +16,11 @@ python scripts/vigilancia.py --since <ventana> --json   # cuando necesites los d
 ```
 
 Si el usuario pegó la salida de un agente, ese es el primer hallazgo: ubícalo en la traza (hora, proyecto, regla).
+
+Cubre **todas las sesiones iniciadas** en Windows y WSL (Claude Code en cada perfil, Codex, Antigravity, OpenCode),
+incluida la tuya. El colector informa los `hook fallido en Claude Code` (attachment `hook_non_blocking_error` del
+transcript) y las sesiones de Codex con una versión que ya no está en la caché. Un hook fallido es `bug`, aunque el
+agente siga avanzando: el plugin no corrió.
 Lee el reporte anterior en `docs/vigilancia/reportes/` para no volver a informar lo ya resuelto.
 
 ## 2. Confirmar cada hallazgo con evidencia

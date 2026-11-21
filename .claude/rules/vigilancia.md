@@ -12,6 +12,17 @@ con esa evidencia. Detalle: [`docs/vigilancia/README.md`](../../docs/vigilancia/
 
 Se usa la skill `vigilar-plugins`, que corre `scripts/vigilancia.py`. Para arreglar, la skill `reparar-plugin`.
 
+## Qué se vigila
+
+- **Todas las sesiones iniciadas, en Windows y en WSL**: Claude Code (cada perfil), Codex, Antigravity, OpenCode y
+  cualquier otro host que cargue los plugins. También la sesión en la que trabajas: si un hook de nuestros plugins
+  falla aquí, es un hallazgo igual que en un proyecto vigilado.
+- **Un hook que falla es un `bug`, aunque el agente siga avanzando.** "Hook failed", "PreToolUse:… hook failed",
+  `hook_non_blocking_error` en el transcript de Claude o "os error 2" en Codex significan que el plugin no corrió:
+  Synapse no protegió (falla abierto) o session-handoff no guardó el estado. Se ubica el host, la versión y la causa.
+- **Una sesión que quedó en una versión vieja** (cuya carpeta ya no está en la caché del host) se informa con la
+  acción para el usuario: reiniciar esa sesión y, en Codex, `/hooks`.
+
 ## Qué se hace sin preguntar
 
 > **Nunca preguntes si reparar algo.** Todo hallazgo de clase `bug` o `mejora` de un plugin o de los scripts de

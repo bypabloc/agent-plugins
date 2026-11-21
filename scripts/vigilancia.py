@@ -132,6 +132,7 @@ def handoff_summary(label: str, path: Path, since: datetime) -> dict[str, Any] |
         "events": len(events),
         "by_event": dict(counts.most_common()),
         "versions": sorted({str(e["v"]) for e in events if "v" in e}),
+        "codex_versions": sorted({str(e["v"]) for e in events if "v" in e and e.get("host") == "codex"}),
         "hosts": sorted({str(e.get("host") or e.get("agent")) for e in events}),
         "foreign_writer": len(foreign),
         "max_inject_chars": max(injects, default=0),
@@ -224,6 +225,54 @@ def codex_installs() -> list[dict[str, Any]]:
     return rows
 
 
+def codex_cache_versions() -> dict[str, list[str]]:
+    """Versiones presentes en la caché de Codex: una sesión abierta con otra versión tiene los hooks rotos."""
+    cache = Path.home() / ".codex" / "plugins" / "cache"
+    found: dict[str, set[str]] = {}
+    for market in OUR_MARKETPLACES:
+        for version_dir in (cache / market).glob("*/*") if (cache / market).is_dir() else []:
+            if version_dir.is_dir():
+                found.setdefault(version_dir.parent.name, set()).add(version_dir.name)
+    return {plugin: sorted(versions, key=_semver_key) for plugin, versions in found.items()}
+
+
+def claude_hook_errors(since: datetime) -> list[dict[str, Any]]:
+    """Hooks que fallaron en las sesiones de Claude Code (attachment `hook_non_blocking_error` del transcript).
+
+    Visto el 2026-11-21: en Windows, `python3` era el acceso directo de Microsoft Store y cada Edit, Write y Bash
+    mostraba "PreToolUse hook failed"; el agente seguía trabajando y Synapse no revisaba nada.
+    """
+    home = Path.home() / ".claude"
+    groups: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    for transcript in glob.glob(str(home / "projects" / "*" / "*.jsonl")) + glob.glob(str(home / "*" / "projects" / "*" / "*.jsonl")):
+        path = Path(transcript)
+        try:
+            if datetime.fromtimestamp(path.stat().st_mtime, timezone.utc) < since:
+                continue
+        except OSError:
+            continue
+        profile = path.parents[2].name if path.parents[2] != home else "(default)"
+        for line in read_tail_lines(path):
+            if '"hook_non_blocking_error"' not in line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            ts = parse_ts(row.get("timestamp"), False)
+            att = row.get("attachment") or {}
+            if not ts or ts < since or att.get("type") != "hook_non_blocking_error":
+                continue
+            stderr = str(att.get("stderr", "")).replace("Failed with non-blocking status code: ", "").strip()
+            key = (profile, str(row.get("cwd", "")), str(att.get("hookName", "")), stderr[:160])
+            item = groups.setdefault(key, {"profile": key[0], "cwd": key[1], "hook": key[2], "stderr": key[3],
+                                           "exit": att.get("exitCode"), "count": 0, "sessions": set(), "last": ""})
+            item["count"] += 1
+            item["sessions"].add(str(row.get("sessionId", ""))[:8])
+            item["last"] = max(item["last"], ts.isoformat(timespec="seconds"))
+    return [{**g, "sessions": sorted(g["sessions"])} for g in sorted(groups.values(), key=lambda g: -g["count"])]
+
+
 def codex_config() -> dict[str, Any]:
     base = Path.home() / ".codex"
     result: dict[str, Any] = {"marketplaces": {}, "hooks": [], "orphans": [], "handoff_hooks": 0, "synapse_hooks": 0}
@@ -267,6 +316,7 @@ def collect_local(since_delta: timedelta, config: dict[str, Any]) -> dict[str, A
         "env": env, "collected_at": now.isoformat(timespec="seconds"),
         "installs": claude_installs() + codex_installs(), "codex": codex_config(),
         "synapse": synapse_summary(since), "handoff": projects,
+        "codex_cache": codex_cache_versions(), "hook_errors": claude_hook_errors(since),
     }
 
 
@@ -326,6 +376,16 @@ def findings(envs: list[dict[str, Any]], expected: dict[str, str]) -> list[str]:
                            "— revisa en el transcript si el agente se detuvo")
         if syn["pending_approvals"]:
             out.append(f"[{env}] {syn['pending_approvals']} aprobaciones de Synapse pendientes")
+        for err in data.get("hook_errors", []):
+            out.append(f"[{env}] hook fallido en Claude Code ×{err['count']} ({err['hook']}, exit {err['exit']}, "
+                       f"perfil {err['profile']}, {err['cwd']}, sesiones {', '.join(err['sessions'])}, "
+                       f"último {err['last']}): {err['stderr']} — un hook que falla no protege (falla abierto)")
+        cached = data.get("codex_cache", {}).get("session-handoff")
+        for proj in data["handoff"]:
+            gone = [v for v in proj.get("codex_versions", []) if cached is not None and v not in cached]
+            if gone:
+                out.append(f"[{env}] {proj['project']}: Codex corre session-handoff {', '.join(gone)}, que ya no está "
+                           "en la caché: sus hooks fallan ('Hook failed: os error 2'); reiniciar esa sesión de Codex")
         for proj in data["handoff"]:
             if proj["foreign_writer"]:
                 out.append(f"[{env}] {proj['project']}: {proj['foreign_writer']} eventos de handoff sin 'v' "
