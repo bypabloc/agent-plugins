@@ -7,6 +7,8 @@ reglas, skills o CI. Esta regla vive duplicada en `.claude/rules/flujo.md` (Clau
 ## 1. Siempre en un worktree
 
 - Nunca se edita ni se hace commit en el checkout principal (`agent-plugins/`): puede tener trabajo de otra sesión.
+- El checkout principal queda **siempre en `dev`**, actualizado (`git checkout dev && git pull --ff-only`).
+  Si una sesión lo encuentra en otra rama ya fusionada y sin cambios, lo devuelve a `dev`.
 - Cada cambio abre su propio worktree desde `dev` actualizado, en la carpeta hermana `agent-plugins-worktrees/`:
 
   ```bash
@@ -15,7 +17,8 @@ reglas, skills o CI. Esta regla vive duplicada en `.claude/rules/flujo.md` (Clau
   ```
 
 - Rama: `feature/<NNN>-<tema>`, `fix/<plugin>-<tema>` o `chore/repo-<tema>`.
-- Al terminar el ciclo: `git worktree remove ../agent-plugins-worktrees/<carpeta>` y se borra la rama local.
+- Al terminar el ciclo: `git worktree remove ../agent-plugins-worktrees/<carpeta>` y se borran la rama local y la
+  remota (`git branch -D <rama>`, `git push origin --delete <rama>`). En el repo solo quedan `dev` y `main`.
 
 ## 2. Siempre hasta `main`
 
