@@ -1,6 +1,6 @@
 ---
 name: reparar-plugin
-description: Repara o mejora un plugin del monorepo (synapse, session-handoff, spanish-latam-style) a partir de un hallazgo con evidencia de una sesión real. Test que lo reproduce en rojo, arreglo, versión con bump.py, entrada en la bitácora y PR a dev. Usar tras un hallazgo de clase bug o mejora de vigilar-plugins, o cuando el usuario diga "arregla el plugin", "esto lo rompió synapse/handoff", "que no vuelva a pasar".
+description: Repara o mejora un plugin del monorepo (synapse, session-handoff, spanish-latam-style) a partir de un hallazgo con evidencia de una sesión real. Test que lo reproduce en rojo, arreglo, versión con bump.py, entrada en la bitácora, PR a dev, merge a dev y main, release y actualización de todos los CLI. Usar tras un hallazgo de clase bug o mejora de vigilar-plugins, o cuando el usuario diga "arregla el plugin", "esto lo rompió synapse/handoff", "que no vuelva a pasar".
 ---
 
 # Reparar un plugin
@@ -35,7 +35,26 @@ Lee primero el manual del plugin: `plugins/synapse/AGENTS.md` o `plugins/session
 7. **Commit y PR**: Conventional Commits con el plugin como scope, en español. PR a `dev`. En el cuerpo, el hallazgo y
    su evidencia, y los comandos con que cada host se actualiza tras el release (`AGENTS.md` §4).
 
-## Después del merge
+## 8. Cerrar el ciclo (sin preguntar)
 
-El release (tag `<plugin>-v<semver>` sobre `main`) lo decide el usuario. Cuando esté publicado, la siguiente
-revisión de `vigilar-plugins` comprueba que los entornos se actualizaron y que el síntoma no volvió.
+El usuario autorizó (2026-11-21) que toda reparación termine publicada e instalada. Con la CI del PR en verde:
+
+```bash
+gh pr checks <n> --watch                                     # CI verde; si falla, se arregla antes de seguir
+gh pr merge <n> --merge                                      # a dev
+gh pr create --base main --head dev --title "..." --body "..."   # dev → main
+gh pr checks <m> --watch && gh pr merge <m> --merge
+git fetch origin && git tag <plugin>-v<X.Y.Z> origin/main && git push origin <plugin>-v<X.Y.Z>   # uno por plugin
+gh run watch "$(gh run list --workflow release.yml -L 1 --json databaseId -q '.[0].databaseId')"
+python scripts/actualizar_instalaciones.py                   # plan
+python scripts/actualizar_instalaciones.py --apply           # todos los perfiles y CLI, Windows y WSL
+python scripts/vigilancia.py --since 1h                      # todo en la versión nueva
+```
+
+- Un tag solo para los plugins cuya versión cambió. El job de release falla si el espejo no es fast-forward: no se fuerza.
+- Al usuario, al final: qué versión quedó publicada e instalada, y lo que solo puede hacer él: `/hooks` en cada Codex
+  (Codex no corre un hook cambiado hasta volver a confiar en él), `/reload-plugins` en las sesiones abiertas de
+  Claude y el `.claude/settings.json` de un proyecto consumidor que cambió sin commit.
+- Si un paso falla, el ciclo se detiene ahí y se informa con la salida. Nunca `--force`, nunca saltar la CI.
+
+La siguiente revisión de `vigilar-plugins` comprueba que el síntoma no volvió.

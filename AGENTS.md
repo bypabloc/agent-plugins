@@ -14,7 +14,7 @@ lógica:
 | `plugins/session-handoff/` | Handoff de sesión (TypeScript, mod de Claude Code + CLI Node). Espejo: `bypabloc/agent-plugin-session-handoff` |
 | `plugins/spanish-latam-style/` | Español neutro latinoamericano (Claude Code; Codex ejecuta sus hooks). Espejo: `bypabloc/claude-plugin-spanish-latam` |
 | `.claude-plugin/marketplace.json` | Marketplace `bypabloc-agents` para Claude Code y Codex (fuentes relativas) |
-| `scripts/` | `bump.py` (versiones), `release.py` (release y espejos), `vigilancia.py` (colector de vigilancia) |
+| `scripts/` | `bump.py` (versiones), `release.py` (release y espejos), `vigilancia.py` (colector), `actualizar_instalaciones.py` (todos los CLI tras un release) |
 | `docs/research/` | Investigación centralizada: hosts (`multi_agent_support`), plugins de Claude (`claude_plugins`), Laya |
 | `docs/vigilancia/` | Proyectos vigilados (`proyectos.json`) y reportes de cada revisión |
 | `plugins/<x>/docs/bitacora/` | Una entrada por versión, vigilancia propia, aprendizajes y mejoras pendientes |
@@ -36,6 +36,10 @@ lógica:
    Cada versión lleva su archivo en `plugins/<x>/docs/bitacora/versiones/`.
 8. **Autosuficiencia:** ningún plugin deja a un agente detenido sin decirle cómo seguir. Detalle en
    [`.claude/rules/plugins.md`](.claude/rules/plugins.md).
+9. **Toda reparación termina publicada e instalada** (decisión del usuario, 2026-11-21). Con la CI en verde, el
+   agente fusiona a `dev`, luego a `main`, etiqueta cada plugin con versión nueva y ejecuta
+   `scripts/actualizar_instalaciones.py --apply` en todos los CLI y perfiles. Pasos y límites en
+   [`.claude/rules/vigilancia.md`](.claude/rules/vigilancia.md) y en la skill `reparar-plugin`.
 
 ## 3. Decisiones Vigentes
 
@@ -101,6 +105,7 @@ Para probar sin publicar:
 python scripts/release.py synapse 1.7.1 --pr   # bump, rama release/… y PR a dev
 # tras el merge a main:
 git tag synapse-v1.7.1 && git push origin synapse-v1.7.1   # release.yml publica el espejo (fast-forward + LFS)
+python scripts/actualizar_instalaciones.py --apply          # todos los CLI y perfiles (Windows y WSL)
 ```
 
 - El split debe ser fast-forward. Si el `main` del espejo no es ancestro del split, el job falla: nadie empuja al

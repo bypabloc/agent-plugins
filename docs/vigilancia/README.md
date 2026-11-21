@@ -11,7 +11,8 @@ Claude Code no se detenga, no se confunda y no reciba texto roto por culpa del p
 | [`proyectos.json`](proyectos.json) | Registro versionado de los proyectos vigilados: entorno (`windows` o `wsl`), ruta, hosts y plugins. Más reglas `discover` para encontrar proyectos nuevos con `tmp/handoff/.log/` |
 | [`scripts/vigilancia.py`](../../scripts/vigilancia.py) | Colector determinista y de solo lectura. Junta versiones instaladas, hooks de Codex, decisiones de Synapse y eventos de session-handoff de Windows y de WSL (`wsl.exe`) y lista hallazgos heurísticos |
 | Skill [`vigilar-plugins`](../../.claude/skills/vigilar-plugins/SKILL.md) | Corre el colector, lee los transcripts de los hallazgos y clasifica cada uno (entorno, versión vieja, bug, mejora). Deja un reporte en [`reportes/`](reportes/) |
-| Skill [`reparar-plugin`](../../.claude/skills/reparar-plugin/SKILL.md) | Convierte un hallazgo de tipo bug o mejora en un test que falla, el arreglo, la versión y la entrada de bitácora, en una rama con PR a `dev` |
+| [`scripts/actualizar_instalaciones.py`](../../scripts/actualizar_instalaciones.py) | Tras un release, migra y actualiza los plugins en todos los perfiles de Claude Code y en Codex, en Windows y WSL (plan por defecto, `--apply` para ejecutar) |
+| Skill [`reparar-plugin`](../../.claude/skills/reparar-plugin/SKILL.md) | Convierte un hallazgo de tipo bug o mejora en un test que falla, el arreglo, la versión y la entrada de bitácora, en una rama con PR a `dev`, y cierra el ciclo: merge a `dev` y `main`, release y actualización de los CLI |
 | Rule [`vigilancia.md`](../../.claude/rules/vigilancia.md) | Cuándo vigilar, qué se corrige sin preguntar y qué requiere al usuario |
 | Bitácora de cada plugin | `plugins/<x>/docs/bitacora/vigilancia.md` (fuentes y síntomas propios), `versiones/`, `aprendizajes.md`, `mejoras-pendientes.md` |
 
