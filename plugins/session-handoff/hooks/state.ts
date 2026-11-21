@@ -15,6 +15,8 @@ export type SessionState = {
   /** Idempotence: Codex may deliver the same Stop twice (H-02); the same turn gets the same answer. */
   lastStopTurn: string | null
   lastStopOutcome: string | null
+  /** When the last Stop of `lastStopTurn` was evaluated: a Stop of the same turn after this window is evaluated again. */
+  lastStopAt: number | null
   pendingCommits: string[]
   /** OpenCode: the next injection says the conversation was compacted. */
   compacted: boolean
@@ -26,7 +28,7 @@ const SAFE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
 export const stateDir = (store: string): string => `${handoffDir(store)}/.state`
 
 export const emptyState = (session: string, host: string): SessionState => ({
-  v: 1, session, host, headAtStart: null, lastStop: null, lastStopTurn: null, lastStopOutcome: null,
+  v: 1, session, host, headAtStart: null, lastStop: null, lastStopTurn: null, lastStopOutcome: null, lastStopAt: null,
   pendingCommits: [], compacted: false, updatedAt: 0,
 })
 

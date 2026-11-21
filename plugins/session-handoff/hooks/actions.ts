@@ -123,17 +123,25 @@ export async function askQuestion(c: Ctx): Promise<string | null> {
   return askDeniedText(config)
 }
 
+/** A Stop that repeats within this window (Codex may deliver it twice) gets the same answer as the one before. */
+const DUPLICATE_STOP_MS = 2_000
+
 /**
  * The end of the turn: the same order as register.tsx (commit reminders, a newer session that took the work, then
- * stopDecision). `turn` makes a duplicated Stop answer the same. Antigravity has no PostToolUse output, so the
- * session's commits (since headAtStart) and the PROGRESS.md checks are done here.
+ * stopDecision). A duplicated Stop answers the same. A later Stop of the same `turn` is evaluated again: after a block
+ * Codex continues the turn with the same turn_id, and replaying the saved block would never release (external-wait)
+ * nor reach the cap. Antigravity has no PostToolUse output, so the session's commits (since headAtStart) and the
+ * PROGRESS.md checks are done here.
  */
 export async function stop(c: Ctx & { active: boolean; turn: string }): Promise<string | null> {
   const h = await here(c)
-  if (c.turn && h.state.lastStopTurn === c.turn) return h.state.lastStopOutcome
+  const now = c.now ?? Date.now()
+  const duplicate = h.state.lastStopAt !== null && now - h.state.lastStopAt < DUPLICATE_STOP_MS
+  if (c.turn && h.state.lastStopTurn === c.turn && duplicate) return h.state.lastStopOutcome
   const answer = await stopAnswer(c, h)
   h.state.lastStopTurn = c.turn || null
   h.state.lastStopOutcome = answer
+  h.state.lastStopAt = now
   await saveState(c.io, h.place.store, h.state, c.now)
   return answer
 }

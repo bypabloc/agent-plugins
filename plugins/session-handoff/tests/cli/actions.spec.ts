@@ -54,6 +54,25 @@ describe('stop', () => {
     expect(await actions.stop({ ...ctx(io), active: false, turn: 't4', now: 4_000_000 })).toBeNull()
   })
 
+  test('un Stop continuado en el mismo turno de Codex vuelve a leer PROGRESS.md y libera en external-wait', async () => {
+    const files = boundWorld(PENDING)
+    const io = memoryIo(files)
+    const first = await actions.stop({ ...ctx(io), active: false, turn: 't1', now: 1_000_000 })
+    expect(first).toContain('no terminó')
+    // El agente pone external-wait; Codex vuelve a parar dentro del mismo turno (mismo turn_id)
+    const progressKey = Object.keys(files).find(k => k.endsWith('/PROGRESS.md'))!
+    files[progressKey] = 'Status: in-progress\nPhase: external-wait (CUA)\nNext step: revisar merge\n'
+    expect(await actions.stop({ ...ctx(io), active: false, turn: 't1', now: 1_060_000 })).toBeNull()
+  })
+
+  test('un Stop continuado del mismo turno sin cambios en PROGRESS.md llega al tope', async () => {
+    const io = memoryIo(boundWorld())
+    expect(await actions.stop({ ...ctx(io), active: false, turn: 't1', now: 1_000_000 })).toContain('no terminó')
+    expect(await actions.stop({ ...ctx(io), active: false, turn: 't1', now: 1_060_000 })).toContain('Segunda parada')
+    expect(await actions.stop({ ...ctx(io), active: false, turn: 't1', now: 1_120_000 })).toContain('Último aviso')
+    expect(await actions.stop({ ...ctx(io), active: false, turn: 't1', now: 1_180_000 })).toBeNull()
+  })
+
   test('done or unbound releases', async () => {
     expect(await actions.stop({ ...ctx(memoryIo(boundWorld('Status: done\n'))), active: false, turn: 't' })).toBeNull()
     expect(await actions.stop({ ...ctx(memoryIo({})), active: false, turn: 't' })).toBeNull()
