@@ -11,6 +11,8 @@ Claude Code, en cada perfil (~/.claude y ~/.claude/<perfil> con CLAUDE_CONFIG_DI
   - quita las demás copias (marketplace viejo, scope project o local desde la carpeta del proyecto, lo que cambia su
     .claude/settings.json), siempre después de que la de user quedó lista, y luego el marketplace viejo.
 Codex (~/.codex): refresca bypabloc-agents, migra desde bypabloc, reinstala la última versión y quita el viejo.
+Además retiene en la caché las versiones que Codex reemplaza (7 días), porque las sesiones abiertas siguen
+ejecutando los hooks desde la carpeta de la versión con que arrancaron.
 
 No automatiza la confianza de hooks de Codex: tras actualizar, el usuario corre /hooks en Codex (Codex ata cada
 hook al hash de su contenido y un hook cambiado no corre hasta volver a confiar en él).
@@ -27,6 +29,7 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -165,6 +168,70 @@ def codex_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
     return steps, [f"[{where}] tras actualizar, abre Codex y ejecuta /hooks para confiar en los hooks nuevos"]
 
 
+# Visto el 2026-11-21: `codex plugin marketplace upgrade` deja en la caché solo la versión nueva. Las sesiones de
+# Codex abiertas conservan la ruta de la versión que cargaron al arrancar, así que cada hook terminaba en
+# "Hook failed: No such file or directory (os error 2)" (y Synapse dejaba de revisar los comandos: falla abierto).
+# Por eso se retienen las versiones previas, marcadas con KEEP_MARK, hasta KEEP_DAYS después de reemplazarlas.
+KEEP_MARK = ".retenida-por-actualizar-instalaciones"
+KEEP_DAYS = 7
+
+
+def codex_cache() -> Path:
+    return Path.home() / ".codex" / "plugins" / "cache" / NEW
+
+
+def codex_holding() -> Path:
+    return Path.home() / ".codex" / "plugins" / f".{NEW}-previas"
+
+
+def _link_or_copy(src: str, dst: str) -> None:
+    try:
+        os.link(src, dst)  # sin duplicar los ~100 MB del modelo de Synapse
+    except OSError:
+        shutil.copy2(src, dst)
+
+
+def codex_snapshot() -> None:
+    """Guarda (con enlaces duros) cada versión que hay hoy en la caché, antes de que Codex la reemplace."""
+    holding = codex_holding()
+    shutil.rmtree(holding, ignore_errors=True)
+    for version_dir in sorted(codex_cache().glob("*/*")):
+        if version_dir.is_dir():
+            target = holding / version_dir.parent.name / version_dir.name
+            shutil.copytree(version_dir, target, copy_function=_link_or_copy, symlinks=True)
+
+
+def codex_restore(now: datetime | None = None) -> list[str]:
+    """Devuelve a la caché las versiones que Codex borró, para las sesiones que aún las usan."""
+    holding = codex_holding()
+    restored = []
+    stamp = (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")
+    for saved in sorted(holding.glob("*/*")):
+        target = codex_cache() / saved.parent.name / saved.name
+        if saved.is_dir() and not target.exists():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(saved), str(target))
+            (target / KEEP_MARK).write_text(stamp, encoding="utf-8")
+            restored.append(f"{saved.parent.name}/{saved.name}")
+    shutil.rmtree(holding, ignore_errors=True)
+    return restored
+
+
+def codex_prune(now: datetime | None = None) -> list[str]:
+    """Borra las versiones retenidas hace más de KEEP_DAYS: ninguna sesión abierta debería seguir en ellas."""
+    now = now or datetime.now(timezone.utc)
+    pruned = []
+    for mark in sorted(codex_cache().glob(f"*/*/{KEEP_MARK}")):
+        try:
+            kept_at = datetime.fromisoformat(mark.read_text(encoding="utf-8").strip())
+        except (OSError, ValueError):
+            continue
+        if now - kept_at > timedelta(days=KEEP_DAYS):
+            shutil.rmtree(mark.parent, ignore_errors=True)
+            pruned.append(f"{mark.parent.parent.name}/{mark.parent.name}")
+    return pruned
+
+
 # --- Ejecución -----------------------------------------------------------------------------------------------
 
 def run(step: Step) -> tuple[bool, str]:
@@ -188,6 +255,8 @@ def local(apply: bool) -> int:
     notes += codex_notes
     failed = 0
     ok_by_index: dict[int, bool] = {}
+    if apply and codex:
+        codex_snapshot()
     for index, step in enumerate(steps):
         if not apply:
             print(f"(plan) {step.show()}")
@@ -200,6 +269,15 @@ def local(apply: bool) -> int:
         ok_by_index[index] = ok
         failed += not ok
         print(f"{'✓' if ok else '✗'} {step.show()}{'' if ok else '  → ' + last}")
+    if apply and codex:
+        where = f"{env_label()} codex"
+        restored = codex_restore()
+        if restored:
+            notes.append(f"[{where}] versiones previas retenidas {KEEP_DAYS} días para las sesiones abiertas: "
+                         f"{', '.join(restored)}. Reinicia esas sesiones de Codex para que usen la nueva")
+        pruned = codex_prune()
+        if pruned:
+            notes.append(f"[{where}] versiones retenidas que vencieron y se borraron: {', '.join(pruned)}")
     for note in notes:
         print(f"· {note}")
     if not steps:

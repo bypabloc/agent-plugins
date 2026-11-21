@@ -114,3 +114,50 @@ def test_project_copies_leave_once_the_user_one_is_enabled(tmp_path, monkeypatch
         "plugin uninstall session-handoff@bypabloc-agents --scope project",
         "plugin uninstall synapse@bypabloc-agents --scope project",
     ]
+
+
+def make_codex(home: Path, version: str = "0.5.0") -> Path:
+    codex = home / ".codex"
+    codex.mkdir(parents=True)
+    (codex / "config.toml").write_text(
+        '[marketplaces.bypabloc-agents]\n\n[plugins."session-handoff@bypabloc-agents"]\nenabled = true\n',
+        encoding="utf-8")
+    old = codex / "plugins" / "cache" / "bypabloc-agents" / "session-handoff" / version
+    (old / "dist").mkdir(parents=True)
+    (old / "dist" / "hook.mjs").write_text("// viejo", encoding="utf-8")
+    return old
+
+
+def test_codex_upgrade_keeps_the_previous_cache_for_open_sessions(tmp_path, monkeypatch, capsys) -> None:
+    # Visto el 2026-11-21: `codex plugin marketplace upgrade` borró session-handoff/0.5.0 y synapse/1.7.0 de la
+    # caché; las sesiones de Codex abiertas siguieron apuntando ahí y cada hook terminó en
+    # "Hook failed: No such file or directory (os error 2)". En WSL, Synapse dejó de revisar los comandos.
+    old = make_codex(tmp_path)
+    monkeypatch.setattr(ai.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.setattr(ai.shutil, "which", lambda name: name if name == "codex" else None)
+
+    def run(step: ai.Step) -> tuple[bool, str]:
+        if "upgrade" in step.cmd:  # lo que hace Codex: la caché queda solo con la versión nueva
+            ai.shutil.rmtree(old)
+            (old.parent / "0.5.2" / "dist").mkdir(parents=True)
+        return True, ""
+    monkeypatch.setattr(ai, "run", run)
+
+    assert ai.local(apply=True) == 0
+    assert (old / "dist" / "hook.mjs").read_text(encoding="utf-8") == "// viejo"
+    assert (old.parent / "0.5.2").is_dir()
+    assert "session-handoff/0.5.0" in capsys.readouterr().out
+
+
+def test_retained_cache_is_pruned_after_a_week(tmp_path, monkeypatch) -> None:
+    old = make_codex(tmp_path, "0.4.0")
+    (old / ai.KEEP_MARK).write_text("2026-11-01T00:00:00+00:00", encoding="utf-8")
+    recent = old.parent / "0.5.0"
+    recent.mkdir()
+    (recent / ai.KEEP_MARK).write_text("2026-11-20T00:00:00+00:00", encoding="utf-8")
+    current = old.parent / "0.5.2"
+    current.mkdir()
+    monkeypatch.setattr(ai.Path, "home", classmethod(lambda cls: tmp_path))
+
+    ai.codex_prune(now=ai.datetime(2026, 11, 21, tzinfo=ai.timezone.utc))
+    assert not old.exists() and recent.is_dir() and current.is_dir()
