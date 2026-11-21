@@ -1,7 +1,7 @@
 # session-handoff
 
 > [!NOTE]
-> Este repo (`bypabloc/agent-plugin-session-handoff`) es un **espejo** generado desde el monorepo [`bypabloc/agent-plugins`](https://github.com/bypabloc/agent-plugins/tree/main/plugins/session-handoff). Los issues y pull requests van allí. El soporte para Codex, Antigravity y OpenCode está en curso ([spec 001](https://github.com/bypabloc/agent-plugins/tree/main/docs/specs/001-plugins-multi-agente)).
+> Este repo (`bypabloc/agent-plugin-session-handoff`) es un **espejo** generado desde el monorepo [`bypabloc/agent-plugins`](https://github.com/bypabloc/agent-plugins/tree/main/plugins/session-handoff). Los issues y pull requests van allí. El soporte para Codex, Antigravity y OpenCode se diseñó en el [spec 001](https://github.com/bypabloc/agent-plugins/tree/synapse-v1.7.0/docs/specs/001-plugins-multi-agente).
 
 Plugin de Claude Code para **sesiones largas y trabajo con varios agentes**. Guarda el estado de cada trabajo en disco (`tmp/handoff/<trabajo>/`), lo vuelve a inyectar al iniciar, reanudar y compactar, no deja cerrar el turno mientras quede un siguiente paso y compacta sin pedirle un resumen al modelo. El estado del trabajo se ve en el spinner y en una banda sobre el prompt.
 
@@ -18,7 +18,7 @@ Requiere Claude Code 2.1.287 o posterior. Para un solo proyecto, `--scope projec
 
 ### En Codex, Antigravity y OpenCode
 
-Desde 0.5.0 el plugin funciona en otros agentes con el mismo núcleo ([spec 001](https://github.com/bypabloc/agent-plugins/tree/main/docs/specs/001-plugins-multi-agente)). En Codex y Antigravity corre como `dist/hook.mjs` con **Node 20 o superior**; en OpenCode corre en proceso, sin instalar nada.
+Desde 0.5.0 el plugin funciona en otros agentes con el mismo núcleo ([spec 001](https://github.com/bypabloc/agent-plugins/tree/synapse-v1.7.0/docs/specs/001-plugins-multi-agente)). En Codex y Antigravity corre como `dist/hook.mjs` con **Node 20 o superior**; en OpenCode corre en proceso, sin instalar nada.
 
 | Agente | Instalación | Qué hace |
 | :--- | :--- | :--- |
