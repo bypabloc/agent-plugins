@@ -7,9 +7,9 @@
 
 Claude Code, en cada perfil (~/.claude y ~/.claude/<perfil> con CLAUDE_CONFIG_DIR):
   - agrega o actualiza el marketplace bypabloc-agents;
-  - migra cada instalación de <plugin>@bypabloc (marketplace viejo) a @bypabloc-agents en el mismo scope
-    (user, o project/local desde la carpeta del proyecto, lo que cambia su .claude/settings.json);
-  - actualiza las instalaciones de @bypabloc-agents y quita el marketplace viejo cuando ya no tiene instalaciones.
+  - deja cada plugin del marketplace una sola vez, en scope user y habilitado;
+  - quita las demás copias (marketplace viejo, scope project o local desde la carpeta del proyecto, lo que cambia su
+    .claude/settings.json), siempre después de que la de user quedó lista, y luego el marketplace viejo.
 Codex (~/.codex): refresca bypabloc-agents, migra desde bypabloc, reinstala la última versión y quita el viejo.
 
 No automatiza la confianza de hooks de Codex: tras actualizar, el usuario corre /hooks en Codex (Codex ata cada
@@ -81,53 +81,58 @@ def claude_profiles() -> list[tuple[str, Path]]:
 
 
 def claude_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
+    """Estado deseado por perfil: cada plugin del marketplace, una sola vez, en scope user y habilitado."""
     exe = shutil.which("claude")
     steps: list[Step] = []
     notes: list[str] = []
     for name, profile in claude_profiles():
         where = f"{env_label()} claude {name}"
+        installed = load_json(profile / "plugins" / "installed_plugins.json").get("plugins", {})
+        markets = load_json(profile / "plugins" / "known_marketplaces.json")
+        mine = [(key.partition("@")[0], key.partition("@")[2], item) for key, items in installed.items()
+                for item in items if key.partition("@")[0] in ours and key.partition("@")[2] in (OLD, NEW)]
+        if not mine and NEW not in markets:
+            continue
         if exe is None:
             notes.append(f"[{where}] sin `claude` en el PATH")
             continue
         env = {} if name == "(default)" else {"CLAUDE_CONFIG_DIR": str(profile)}
         unset = ("CLAUDE_CONFIG_DIR",) if name == "(default)" else ()
-        installed = load_json(profile / "plugins" / "installed_plugins.json").get("plugins", {})
-        markets = load_json(profile / "plugins" / "known_marketplaces.json")
-        mine = [(key.partition("@")[0], key.partition("@")[2], item) for key, items in installed.items()
-                for item in items if key.partition("@")[0] in ours and key.partition("@")[2] in (OLD, NEW)]
-        if not mine:
-            continue
+        enabled = load_json(profile / "settings.json").get("enabledPlugins", {})
+
         def mk(cmd: list[str], cwd: Path | None = None, needs: tuple[int, ...] = ()) -> int:
             steps.append(Step(where, [exe, *cmd], cwd or Path.home(), env, unset, needs))
             return len(steps) - 1
 
         # Sin el marketplace nuevo (p. ej. bloqueado por una política empresarial) no se toca nada del perfil
-        market = mk(["plugin", "marketplace", "update", NEW] if NEW in markets
-                    else ["plugin", "marketplace", "add", SOURCE])
-        migrated: list[int] = []
-        have_new = {(p, i.get("scope"), i.get("projectPath")) for p, m, i in mine if m == NEW}
-        done: set[tuple] = set()
-        market_idx = market
+        market_idx = mk(["plugin", "marketplace", "update", NEW] if NEW in markets
+                        else ["plugin", "marketplace", "add", SOURCE])
+        at_user = {p for p, m, i in mine if m == NEW and i.get("scope", "user") == "user"}
+        ready: dict[str, int] = {}
+        for plugin in sorted(ours):
+            key = f"{plugin}@{NEW}"
+            if plugin in at_user:
+                ready[plugin] = mk(["plugin", "update", key, "--scope", "user"], needs=(market_idx,))
+                if enabled.get(key) is False:
+                    ready[plugin] = mk(["plugin", "enable", key, "--scope", "user"], needs=(ready[plugin],))
+            else:
+                ready[plugin] = mk(["plugin", "install", key, "--scope", "user"], needs=(market_idx,))
+        # Toda otra copia (marketplace viejo, o scope project/local) sobra: se quita solo con la de user lista
+        removed: list[int] = []
         for plugin, market, item in mine:
             scope, project = item.get("scope", "user"), item.get("projectPath")
+            if market == NEW and scope == "user":
+                continue
             cwd = Path(project) if project else Path.home()
             if scope in ("project", "local") and not cwd.is_dir():
                 notes.append(f"[{where}] {plugin}@{market} ({scope}) en {project}: la carpeta no existe, se omite")
                 continue
-            key = (plugin, scope, project)
-            if market == OLD:
-                # El viejo se desinstala solo si el nuevo quedó instalado en el mismo scope
-                gate = (market_idx,) if key in have_new or key in done else (
-                    mk(["plugin", "install", f"{plugin}@{NEW}", "--scope", scope], cwd, (market_idx,)),)
-                migrated.append(mk(["plugin", "uninstall", f"{plugin}@{OLD}", "--scope", scope], cwd, gate))
-            elif key not in done:
-                mk(["plugin", "update", f"{plugin}@{NEW}", "--scope", scope], cwd, (market_idx,))
-            done.add(key)
-            if market == OLD and scope in ("project", "local"):
-                notes.append(f"[{where}] {plugin} ({scope}) cambia {cwd / '.claude' / 'settings.json'}: queda sin commit")
+            removed.append(mk(["plugin", "uninstall", f"{plugin}@{market}", "--scope", scope], cwd, (ready[plugin],)))
+            if scope in ("project", "local"):
+                notes.append(f"[{where}] {plugin} sale del scope {scope}: cambia {cwd / '.claude' / 'settings.json'}")
         others = [k for k in installed if k.endswith(f"@{OLD}") and k.partition("@")[0] not in ours]
         if OLD in markets and not others:
-            mk(["plugin", "marketplace", "remove", OLD], needs=(market_idx, *migrated))
+            mk(["plugin", "marketplace", "remove", OLD], needs=(market_idx, *removed))
     return steps, notes
 
 
@@ -150,7 +155,7 @@ def codex_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
     steps = [Step(where, [exe, "plugin", "marketplace", "upgrade", NEW] if NEW in markets
                   else [exe, "plugin", "marketplace", "add", SOURCE])]
     removed: list[int] = []
-    for plugin in sorted({p for p, _ in mine}):
+    for plugin in sorted(ours):  # todos los del marketplace, como en Claude Code
         steps.append(Step(where, [exe, "plugin", "add", f"{plugin}@{NEW}"], needs=(0,)))
         if (plugin, OLD) in mine:
             steps.append(Step(where, [exe, "plugin", "remove", f"{plugin}@{OLD}"], needs=(len(steps) - 1,)))

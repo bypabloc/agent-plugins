@@ -8,6 +8,13 @@ Este repo es la **fuente única** de tres plugins. Antes de tocar uno, lee su ma
 | `session-handoff` | Estado del trabajo en disco, reinyección, `Stop`, hashes (TypeScript) | [`plugins/session-handoff/AGENTS.md`](../../plugins/session-handoff/AGENTS.md) | Claude Code (mod), Codex, Antigravity, OpenCode |
 | `spanish-latam-style` | Español neutro latinoamericano en respuestas, docs y commits | [`plugins/spanish-latam-style/README.md`](../../plugins/spanish-latam-style/README.md) | Claude Code (Codex ejecuta sus hooks) |
 
+## Instalación
+
+Cada plugin del monorepo se instala **una sola vez, en scope `user` y habilitado**, en cada perfil de Claude Code
+(Windows y WSL) y en Codex. Nunca en scope `project` o `local`, ni en el `.claude/settings.json` de un proyecto
+consumidor. `scripts/actualizar_instalaciones.py --apply` deja ese estado y quita las copias de más, y
+`scripts/vigilancia.py` avisa si reaparece una.
+
 ## Reglas al cambiar un plugin
 
 - **Nunca edites los espejos** (`agent-plugin-synapse`, `agent-plugin-session-handoff`, `claude-plugin-spanish-latam`):
