@@ -309,6 +309,8 @@ AGENT_WRAPPERS = {
     "gemini": {"-p", "--prompt"},
 }
 UNSAFE_AGENT_FLAGS_RE = re.compile(r"--dangerously-[\w-]+|--yolo\b|--full-auto\b")
+# Con estos flags el CLI imprime su ayuda o versión y sale: no corre ningún agente (visto en Codex: `codex exec --help`)
+AGENT_INFO_FLAGS = {"--help", "-h", "--version", "-V"}
 # Windows (PowerShell / cmd): mínimo determinista; la cobertura completa es el spec 002 (T-28)
 WINDOWS_DISK_RE = re.compile(r"(?i)\b(Format-Volume|Clear-Disk|diskpart)\b|(^|[;&|]\s*)format\s+[a-z]:")
 WINDOWS_REMOTE_FETCH_RE = re.compile(r"(?i)\b(iwr|irm|Invoke-WebRequest|Invoke-RestMethod|DownloadString|DownloadFile)\b")
@@ -330,6 +332,8 @@ def agent_wrapper(command: str) -> tuple[str, str] | None:
         name = os.path.basename(tokens[0]).removesuffix(".exe").removesuffix(".cmd")
         modes = AGENT_WRAPPERS.get(name)
         if modes and any(t in modes for t in tokens[1:3]):
+            if AGENT_INFO_FLAGS.intersection(tokens[1:]):
+                continue
             if UNSAFE_AGENT_FLAGS_RE.search(sc):
                 return "block", f"'{name}' sin sus protecciones ({UNSAFE_AGENT_FLAGS_RE.search(sc).group(0)})"
             return "ask", f"'{name}' en modo no interactivo: ese agente corre sin los guardrails de esta sesión"

@@ -33,10 +33,11 @@ def test_hooks_json_points_to_existing_executable_scripts() -> None:
     ]
     assert commands
     for cmd in commands:
-        script = cmd.split("${CLAUDE_PLUGIN_ROOT}/")[1].strip('"')
-        path = PROJECT_DIR / script
+        launcher, _, entry = cmd.split("${CLAUDE_PLUGIN_ROOT}/")[1].partition('" ')
+        path = PROJECT_DIR / launcher
         assert path.is_file(), cmd
-        assert os.access(path, os.X_OK), f"{script} no es ejecutable"
+        assert os.access(path, os.X_OK), f"{launcher} no es ejecutable"
+        assert (PROJECT_DIR / "hooks" / f"{entry.split()[0]}.py").is_file(), cmd
 
 
 @pytest.mark.parametrize(
