@@ -14,8 +14,14 @@ Se usa la skill `vigilar-plugins`, que corre `scripts/vigilancia.py`. Para arreg
 
 ## Qué se hace sin preguntar
 
+> **Nunca preguntes si reparar algo.** Todo hallazgo de clase `bug` o `mejora` de un plugin o de los scripts de
+> este repo, se vea en la vigilancia, en una salida que pegue el usuario o en esta misma sesión (por ejemplo, un
+> aviso equivocado de un hook), se repara en el acto con el ciclo completo: test, arreglo, commit, push, PR, merge
+> a `dev` y a `main`, release e instalación en todos los CLI. Al usuario solo se le informa el resultado.
+> Preguntar "¿lo reparo?" es un error: el usuario ya lo pidió de forma permanente (2026-11-21).
+
 - Leer las trazas, los transcripts y la configuración de Windows y WSL (solo lectura).
-- Escribir reportes en `docs/vigilancia/reportes/` y actualizar `docs/vigilancia/proyectos.json`.
+- Escribir reportes en `docs/vigilancia/reportes/` y actualizar el registro local `docs/vigilancia/proyectos.json`.
 - Reparar o mejorar un plugin **en este repo**: rama, test, arreglo, versión, bitácora y PR a `dev`.
 - **Cerrar el ciclo de cada reparación** (autorizado por el usuario el 2026-11-21). Con la CI en verde, sin esperar:
   1. Fusionar el PR a `dev`, abrir el PR de `dev` a `main` y fusionarlo (`gh pr merge --merge`).
@@ -33,12 +39,15 @@ o se informa. Nunca se fuerza un push ni se salta la CI.
 
 ## Qué requiere un "sí" del usuario
 
-- Escribir en el código o la configuración versionada de un proyecto vigilado (klinikae, content-studio, …), salvo
+- Escribir en el código o la configuración versionada de un proyecto vigilado, salvo
   el `.claude/settings.json` que cambie `actualizar_instalaciones.py`, y nunca hacer commits en esos repos.
 - Cambios en `~/.codex` o `~/.claude` distintos de los de arriba.
 - Aprobar un `ask` de Synapse o confiar hooks de Codex (`/hooks`): nunca lo hace el agente, ni siquiera con permiso.
 
 ## Proyectos y rutas
 
-El registro vigente está en [`docs/vigilancia/proyectos.json`](../../docs/vigilancia/proyectos.json). Al agregar
+El registro vigente es `docs/vigilancia/proyectos.json`, **local e ignorado por git**: tiene rutas y nombres
+privados del usuario. La plantilla versionada es `proyectos.example.json`. Nunca escribas nombres de proyectos
+vigilados en archivos versionados (reportes, bitácoras, comentarios, tests): usa "un proyecto con Codex en WSL".
+Si falta el registro, recupéralo de la memoria del agente (`plugin-consumers`). Al agregar
 un proyecto nuevo, súmalo ahí y no en esta regla.
