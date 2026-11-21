@@ -1,5 +1,5 @@
 import { expect, test } from 'claude-code/testing'
-import { BATCH_TEXT, blockedForUser, boundMessage, commitDir, commitHash, DEFAULT_BLOCK_REASONS, isCommit,
+import { BATCH_TEXT, blockedForUser, boundMessage, commitDir, commitHash, freshCommit, DEFAULT_BLOCK_REASONS, isCommit,
   missingHashes, pendingText, HEADER, MAX_BLOCKS, MAX_WAITS, QUICK_STOP_MS, missing, parseConfig,
   progressFields, stopDecision, tooLong, unboundMessage, WRITE_TEXT } from './handoff' // fmt: skip
 
@@ -180,4 +180,13 @@ test('a project phase text replaces the default one, and the writing rules ride 
   expect(text).toContain('Corre 03-verificacion-final.md')
   expect(text).toContain(WRITE_TEXT)
   expect(unboundMessage('s', 'tmp/handoff', 'startup', [], defaults)).toContain(WRITE_TEXT)
+})
+
+test('git log -1 counts as the commit that just ran only while it is fresh', () => {
+  const now = 1_700_000_000_000
+  expect(freshCommit('abc1234 1700000000', now)).toBe('abc1234')
+  expect(freshCommit('abc1234 1699999500', now)).toBe('abc1234')
+  expect(freshCommit('9883811 1699990000', now)).toBeNull() // HEAD viejo: el commit falló en un hook
+  expect(freshCommit('', now)).toBeNull()
+  expect(freshCommit('abc1234', now)).toBeNull()
 })

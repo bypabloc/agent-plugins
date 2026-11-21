@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 
 // hooks/handoff.ts
-var VERSION = "0.5.0";
+var VERSION = "0.5.1";
 var FILES = ["PROGRESS.md", "DECISIONS.md", "NOTES.md"];
 var PHASES = ["implementation", "verification", "integration", "external-wait", "closing"];
 var LINE_MAX = 120;
@@ -226,6 +226,11 @@ function isCommit(command) {
 function commitHash(stdout) {
   return /^\[[^\]\s]+(?: \([^)]*\))? ([0-9a-f]{7,40})\]/m.exec(stdout)?.[1] ?? null;
 }
+var FRESH_COMMIT_SECONDS = 600;
+function freshCommit(line, nowMs) {
+  const m = /^([0-9a-f]{7,40})\s+(\d+)$/.exec(line.trim());
+  return m && nowMs / 1000 - Number(m[2]) <= FRESH_COMMIT_SECONDS ? m[1] : null;
+}
 function commitDir(command, cwd) {
   const quoted = String.raw`(?:"([^"]+)"|'([^']+)'|([^\s&;|]+))`;
   const at = new RegExp(String.raw`git\s+-C\s+${quoted}\s+commit\b`).exec(command) ?? new RegExp(String.raw`(?:^|&&|;)\s*cd\s+${quoted}\s*&&`).exec(command);
@@ -445,7 +450,7 @@ async function postTool(c) {
   if (c.event.tool === "shell") {
     if (!work || !isCommit(c.event.command))
       return null;
-    const sha = commitHash(c.event.output) ?? (await c.io.git(commitDir(c.event.command, c.cwd), ["log", "-1", "--format=%h"]) || null);
+    const sha = commitHash(c.event.output) ?? freshCommit(await c.io.git(commitDir(c.event.command, c.cwd), ["log", "-1", "--format=%h %ct"]), c.now ?? Date.now());
     const text = pendingText(work, await missingCommits(c, h, work, sha ? [sha] : []));
     if (text)
       await logEvent(c.io, h.place.store, { event: "commit.remind", host: c.host, session: c.session, work });

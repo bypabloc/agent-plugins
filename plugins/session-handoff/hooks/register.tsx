@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, SessionMessage } from 'claude-code'
 
 import type { Meter, WorkStatus } from '../types'
-import { askDeniedText, badPhaseText, blockedForUser, boundMessage, commitDir, commitHash, duplicateText, isCommit, longText, missingHashes,
+import { askDeniedText, badPhaseText, blockedForUser, boundMessage, commitDir, commitHash, duplicateText, freshCommit, isCommit, longText, missingHashes,
   pendingText, progressFields, stopDecision, tooLong, unboundMessage } from './handoff' // fmt: skip
 import { addTurn, type Cell, cells, contextTone, emptyMeter, testCounts } from './metrics'
 import { bandText, keepsMessage, spinnerWord, STATUS_COLOR } from './status'
@@ -178,8 +178,9 @@ async function afterCommit<R extends { block?: string }>(
     if (base) await update($, backgroundCommits, w => [...w, { dir, base }].slice(-BACKGROUND_KEPT))
     return result
   }
+  const now = await $.clock.now().catch(() => Date.now())
   const sha = commitHash(typeof stdout === 'string' ? stdout : '') ??
-    ((await ioOf($).git(commitDir(command, cwd), ['log', '-1', '--format=%h'])) || null)
+    freshCommit(await ioOf($).git(commitDir(command, cwd), ['log', '-1', '--format=%h %ct']), now)
   const state = await pending($, e.session_id, sha ? [sha] : [])
   const text = state && pendingText(state.work, state.missing)
   if (!state || !text) return result
