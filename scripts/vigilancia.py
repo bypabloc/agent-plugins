@@ -241,9 +241,12 @@ def claude_hook_errors(since: datetime) -> list[dict[str, Any]]:
 
     Visto el 2026-11-21: en Windows, `python3` era el acceso directo de Microsoft Store y cada Edit, Write y Bash
     mostraba "PreToolUse hook failed"; el agente seguía trabajando y Synapse no revisaba nada.
+
+    Un comando `python3 "${CLAUDE_PLUGIN_ROOT}/..."` sale del hooks.json anterior al lanzador `run-hook.cmd`: la
+    sesión se abrió antes de la actualización y conserva ese hook (`legacy`). No es un fallo activo.
     """
     home = Path.home() / ".claude"
-    groups: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    groups: dict[tuple[str, str, str, str, str], dict[str, Any]] = {}
     for transcript in glob.glob(str(home / "projects" / "*" / "*.jsonl")) + glob.glob(str(home / "*" / "projects" / "*" / "*.jsonl")):
         path = Path(transcript)
         try:
@@ -264,9 +267,17 @@ def claude_hook_errors(since: datetime) -> list[dict[str, Any]]:
             if not ts or ts < since or att.get("type") != "hook_non_blocking_error":
                 continue
             stderr = str(att.get("stderr", "")).replace("Failed with non-blocking status code: ", "").strip()
-            key = (profile, str(row.get("cwd", "")), str(att.get("hookName", "")), stderr[:160])
+            command = str(att.get("command", ""))
+            if command.startswith("python3 ") and "CLAUDE_PLUGIN_ROOT" in command:
+                origen = "legacy"  # hooks.json anterior al lanzador run-hook.cmd
+            elif not command or "CLAUDE_PLUGIN_ROOT" in command:
+                origen = "propio"  # hook de un plugin del repo, o sin comando: ante la duda, se trata como bug
+            else:
+                origen = "ajeno"  # comando explícito que no es de Synapse ni de session-handoff
+            key = (profile, str(row.get("cwd", "")), str(att.get("hookName", "")), stderr[:160], origen)
             item = groups.setdefault(key, {"profile": key[0], "cwd": key[1], "hook": key[2], "stderr": key[3],
-                                           "exit": att.get("exitCode"), "count": 0, "sessions": set(), "last": ""})
+                                           "origen": origen, "command": command[:120], "exit": att.get("exitCode"),
+                                           "count": 0, "sessions": set(), "last": ""})
             item["count"] += 1
             item["sessions"].add(str(row.get("sessionId", ""))[:8])
             item["last"] = max(item["last"], ts.isoformat(timespec="seconds"))
@@ -377,6 +388,18 @@ def findings(envs: list[dict[str, Any]], expected: dict[str, str]) -> list[str]:
         if syn["pending_approvals"]:
             out.append(f"[{env}] {syn['pending_approvals']} aprobaciones de Synapse pendientes")
         for err in data.get("hook_errors", []):
+            if err.get("origen") == "ajeno":
+                out.append(f"[{env}] hook sin atribuir a un plugin del repo ×{err['count']} ({err['hook']}, exit "
+                           f"{err['exit']}, perfil {err['profile']}, {err['cwd']}, sesiones {', '.join(err['sessions'])}, "
+                           f"último {err['last']}): comando «{err['command'] or 'sin comando'}». No es de Synapse ni de "
+                           "session-handoff: revisar de qué plugin o configuración viene")
+                continue
+            if err.get("origen") == "legacy":
+                out.append(f"[{env}] hook con python3 directo en Claude Code ×{err['count']} ({err['hook']}, perfil "
+                           f"{err['profile']}, {err['cwd']}, sesiones {', '.join(err['sessions'])}, último {err['last']}): "
+                           "la sesión se abrió antes de la actualización y conserva el hook de la versión anterior; "
+                           "reiniciarla o usar /reload-plugins")
+                continue
             out.append(f"[{env}] hook fallido en Claude Code ×{err['count']} ({err['hook']}, exit {err['exit']}, "
                        f"perfil {err['profile']}, {err['cwd']}, sesiones {', '.join(err['sessions'])}, "
                        f"último {err['last']}): {err['stderr']} — un hook que falla no protege (falla abierto)")
