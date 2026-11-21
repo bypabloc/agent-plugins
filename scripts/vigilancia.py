@@ -196,6 +196,10 @@ def claude_installs() -> list[dict[str, Any]]:
         except (OSError, ValueError):
             continue
         profile = path.parents[1].name if path.parents[1] != home else "(default)"
+        try:
+            enabled = json.loads((path.parents[1] / "settings.json").read_text(encoding="utf-8")).get("enabledPlugins", {})
+        except (OSError, ValueError):
+            enabled = {}
         for key, installs in data.get("plugins", {}).items():
             name, _, market = key.partition("@")
             if market not in OUR_MARKETPLACES:
@@ -203,7 +207,8 @@ def claude_installs() -> list[dict[str, Any]]:
             for item in installs:
                 rows.append({"host": "claude", "profile": profile, "plugin": name, "marketplace": market,
                              "scope": item.get("scope"), "version": item.get("version"),
-                             "project": item.get("projectPath")})
+                             "project": item.get("projectPath"),
+                             "enabled": enabled.get(key) if item.get("scope") == "user" else None})
     return rows
 
 
@@ -295,6 +300,11 @@ def findings(envs: list[dict[str, Any]], expected: dict[str, str]) -> list[str]:
                 where = inst["project"] or inst["scope"]
                 out.append(f"[{env}] versión atrasada: {inst['plugin']} {inst['version']} < {want} "
                            f"({inst['host']} {inst['profile']}, {where}, marketplace {inst['marketplace']})")
+            if inst["host"] == "claude" and inst["scope"] in ("project", "local"):
+                out.append(f"[{env}] {inst['plugin']} instalado en scope {inst['scope']} ({inst['profile']}, "
+                           f"{inst['project']}): debe estar solo en user — actualizar_instalaciones.py lo corrige")
+            if inst.get("enabled") is False:
+                out.append(f"[{env}] {inst['plugin']} deshabilitado en user ({inst['host']} {inst['profile']})")
             if inst["marketplace"] == "bypabloc":
                 out.append(f"[{env}] instalado desde el marketplace viejo 'bypabloc': {inst['plugin']} "
                            f"({inst['host']} {inst['profile']}, {inst['project'] or inst['scope']})")
