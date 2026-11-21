@@ -20,12 +20,16 @@ lógica:
 | `plugins/<x>/docs/bitacora/` | Una entrada por versión, vigilancia propia, aprendizajes y mejoras pendientes |
 | `tools/probe/`, `tools/fake-llm/` | Sondas de payload de cada host y LLM falso para los E2E |
 | `.claude/rules/`, `.claude/skills/` | Reglas siempre activas y skills `vigilar-plugins` y `reparar-plugin` |
+| `.agents/rules/` | Copia exacta de las reglas compartidas (`flujo.md`) para Codex y otros agentes |
 
 ## 2. Reglas
 
 1. **Los cambios se hacen solo aquí.** Los espejos reciben `git subtree split` en cada release y nunca commits directos.
-2. **Flujo:** `feature/<NNN>-<tema>` o `fix/<plugin>-<tema>` → PR a `dev` → PR de `dev` a `main`. El release es un
-   tag `<plugin>-v<semver>` sobre `main`.
+2. **Flujo (todo cambio, decisión del usuario 2026-11-21):** cada cambio se hace en su propio **worktree** en
+   `../agent-plugins-worktrees/`, nunca en el checkout principal. Rama `feature/<NNN>-<tema>`, `fix/<plugin>-<tema>`
+   o `chore/repo-<tema>` → PR a `dev` → PR de `dev` a `main`. Cada plugin cambiado lleva versión nueva, tag
+   `<plugin>-v<semver>` sobre `main` y `scripts/actualizar_instalaciones.py --apply`. Detalle en
+   [`.agents/rules/flujo.md`](.agents/rules/flujo.md) (igual a `.claude/rules/flujo.md`).
 3. **Commits:** Conventional Commits con el plugin como scope (`feat(synapse): …`, `fix(session-handoff): …`,
    `chore(repo): …`, `docs(repo): …`).
 4. **Idioma:** documentación, commits y logs en español latinoamericano neutro. Identificadores de código en inglés.
