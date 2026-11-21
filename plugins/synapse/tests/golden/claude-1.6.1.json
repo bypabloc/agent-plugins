@@ -494,6 +494,16 @@
   "stdout": "",
   "stderr": ""
  },
+ "block_dangerous/pass_agent_wrapper_help_runs_no_agent": {
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+ },
+ "block_dangerous/pass_agent_wrapper_version_runs_no_agent": {
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+ },
  "block_dangerous/pass_bash_write_echo_scratchpad": {
   "exit": 0,
   "stdout": "",

@@ -15,6 +15,7 @@ la historia previa al monorepo; desde 1.7.1 son del monorepo.
 
 | Versión | Fecha | Commit | Resumen |
 | :--- | :--- | :--- | :--- |
+| [1.7.2](versiones/1.7.2.md) | 2026-11-21 | — | `codex exec --help` y `--version` dejan de pedir confirmación |
 | [1.7.1](versiones/1.7.1.md) | 2026-11-21 | `bb08bf7` | Codex no se detiene por una regla `.md` y deja de mostrar mojibake en Windows |
 | [1.7.0](versiones/1.7.0.md) | 2026-11-20 | `d6d09a7` | Núcleo multi-agente con adaptadores de Codex, Antigravity y OpenCode; golden 1.6.1 idéntico |
 | [1.6.1](versiones/1.6.1.md) | 2026-11-16 | `477c7bd` | El script de `sed -i`/`perl -i` ya no cuenta como la ruta escrita |

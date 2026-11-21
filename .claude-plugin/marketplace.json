@@ -10,7 +10,7 @@
     {
       "name": "synapse",
       "description": "Guardrails de seguridad antes de cada tool: comandos destructivos, escrituras fuera del proyecto, lectura de .env, secretos y archivos protegidos (reglas deterministas + Laya System 1).",
-      "version": "1.7.1",
+      "version": "1.7.2",
       "author": { "name": "Pablo Contreras", "url": "https://github.com/bypabloc" },
       "category": "security",
       "source": "./plugins/synapse",
