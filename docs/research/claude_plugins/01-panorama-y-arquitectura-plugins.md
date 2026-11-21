@@ -38,10 +38,10 @@ Un **plugin de Claude Code** es una unidad modular, versionable e instalable que
 
 > [!NOTE] Proyectos de Referencia en Producción
 > Esta investigación toma como casos prácticos directos los proyectos del usuario:
-> - [`~/projects/bypabloc/claude-plugins`](file:///home/bypabloc/projects/bypabloc/claude-plugins): Estructura Monorepo Hub con empaquetado multi-plugin y `marketplace.json`.
-> - [`~/projects/bypabloc/claude-plugin-spanish-latam`](file:///home/bypabloc/projects/bypabloc/claude-plugin-spanish-latam): Implementación de inyección dual (`SessionStart` + `UserPromptSubmit`) para control de dialecto y calidad.
+> - [`~/projects/bypabloc/claude-plugins`](https://github.com/bypabloc/claude-plugins): Estructura Monorepo Hub con empaquetado multi-plugin y `marketplace.json`.
+> - [`~/projects/bypabloc/claude-plugin-spanish-latam`](../../../plugins/spanish-latam-style/): Implementación de inyección dual (`SessionStart` + `UserPromptSubmit`) para control de dialecto y calidad.
 > 
-> Análisis detallado en [`06-analisis-casos-reales-y-proyectos-bypabloc.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/claude_plugins/06-analisis-casos-reales-y-proyectos-bypabloc.md).
+> Análisis detallado en [`06-analisis-casos-reales-y-proyectos-bypabloc.md`](./06-analisis-casos-reales-y-proyectos-bypabloc.md).
 
 ---
 

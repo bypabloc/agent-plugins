@@ -100,7 +100,7 @@ $$\text{tokens\_por\_opción} = \max\left(4, \left\lfloor\frac{\text{head\_max\_
 > Si intentas evaluar una pregunta con 77 opciones (ej. dataset Banking77) en el modelo en inglés con `head_max_len = 192`:
 > $$\text{tokens\_por\_opción} = \max(4, (192 - 16) // 77) = 4 \text{ tokens}$$
 > Cada opción recibe solo el `[MASK]` y 3 subpalabras, lo que destruye el significado de las etiquetas largas y derrumba la exactitud de 0.87 a 0.42. 
-> **Solución**: Aumentar `agent.cfg["head_max_len"] = 512` y `agent.cfg["max_len"] = 1024` o estructurar en dos niveles jerárquicos (ver [`10-tips-comunidad-antipatrones-y-limites-honestos.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/10-tips-comunidad-antipatrones-y-limites-honestos.md)).
+> **Solución**: Aumentar `agent.cfg["head_max_len"] = 512` y `agent.cfg["max_len"] = 1024` o estructurar en dos niveles jerárquicos (ver [`10-tips-comunidad-antipatrones-y-limites-honestos.md`](./10-tips-comunidad-antipatrones-y-limites-honestos.md)).
 
 ---
 

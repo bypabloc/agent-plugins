@@ -8,17 +8,17 @@
 
 | # | Archivo | Contenido Principal |
 | :--- | :--- | :--- |
-| 01 | [`01-panorama-e-indice.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/01-panorama-e-indice.md) | Qué es Laya, modelo mental System 1 vs LLMs, comparativa técnica y origen |
-| 02 | [`02-arquitectura-y-modelos.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/02-arquitectura-y-modelos.md) | Backbones (ModernBERT-large, mmBERT-base), decision head, option markers `[MASK]` y token budgets |
-| 03 | [`03-guia-de-uso-y-primitivas.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/03-guia-de-uso-y-primitivas.md) | Instalación, primitivas tipadas (`choice`, `score`, `noul`), esquemas Pydantic y lectura de resultados |
-| 04 | [`04-el-router-y-multilingue.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/04-el-router-y-multilingue.md) | Componente `Router`, detección ultrarrápida (<0.5 ms), memoria, precarga y documentos largos (8k tokens) |
-| 05 | [`05-descarga-local-y-modo-offline.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/05-descarga-local-y-modo-offline.md) | Descarga en local, desconexión total de Hugging Face, checkpoints `.safetensors`, air-gapped setup |
-| 06 | [`06-despliegue-produccion-y-servidores.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/06-despliegue-produccion-y-servidores.md) | `laya-serve` (compatible con TypeSafe Jev), FastAPI, Docker, Docker Compose, MCP Server y TypeScript SDK |
-| 07 | [`07-optimizacion-y-rendimiento.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/07-optimizacion-y-rendimiento.md) | Batching con `sort_by_length`, ONNX Runtime INT8, TileLang GPU fast path, `compile=True` y benchmarks |
-| 08 | [`08-casos-de-uso-y-patrones-arquitecturales.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/08-casos-de-uso-y-patrones-arquitecturales.md) | Triage de tickets, guardrails de LLMs, model gateway, flujos FinTech y decisiones en agentes (LangGraph/CrewAI) |
-| 09 | [`09-recetario-de-ejemplos-practicos.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/09-recetario-de-ejemplos-practicos.md) | Código listo para copiar: triage omnicanal, reclamos FinTech, guardrails, LangGraph y batch processing |
-| 10 | [`10-tips-comunidad-antipatrones-y-limites-honestos.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/10-tips-comunidad-antipatrones-y-limites-honestos.md) | Trampas reales: sesgo en `noul`, límite en `head_max_len`, calibración de temperatura, `USE_TF=0`, límites |
-| 11 | [`11-guia-de-fine-tuning-y-calibracion.md`](file:///home/bypabloc/projects/bypabloc/laya/docs/research/laya/11-guia-de-fine-tuning-y-calibracion.md) | Fine-tuning con RLCD en Kaggle 2xT4 o Apple Silicon MPS, formato de dataset y ajuste de temperaturas |
+| 01 | [`01-panorama-e-indice.md`](./01-panorama-e-indice.md) | Qué es Laya, modelo mental System 1 vs LLMs, comparativa técnica y origen |
+| 02 | [`02-arquitectura-y-modelos.md`](./02-arquitectura-y-modelos.md) | Backbones (ModernBERT-large, mmBERT-base), decision head, option markers `[MASK]` y token budgets |
+| 03 | [`03-guia-de-uso-y-primitivas.md`](./03-guia-de-uso-y-primitivas.md) | Instalación, primitivas tipadas (`choice`, `score`, `noul`), esquemas Pydantic y lectura de resultados |
+| 04 | [`04-el-router-y-multilingue.md`](./04-el-router-y-multilingue.md) | Componente `Router`, detección ultrarrápida (<0.5 ms), memoria, precarga y documentos largos (8k tokens) |
+| 05 | [`05-descarga-local-y-modo-offline.md`](./05-descarga-local-y-modo-offline.md) | Descarga en local, desconexión total de Hugging Face, checkpoints `.safetensors`, air-gapped setup |
+| 06 | [`06-despliegue-produccion-y-servidores.md`](./06-despliegue-produccion-y-servidores.md) | `laya-serve` (compatible con TypeSafe Jev), FastAPI, Docker, Docker Compose, MCP Server y TypeScript SDK |
+| 07 | [`07-optimizacion-y-rendimiento.md`](./07-optimizacion-y-rendimiento.md) | Batching con `sort_by_length`, ONNX Runtime INT8, TileLang GPU fast path, `compile=True` y benchmarks |
+| 08 | [`08-casos-de-uso-y-patrones-arquitecturales.md`](./08-casos-de-uso-y-patrones-arquitecturales.md) | Triage de tickets, guardrails de LLMs, model gateway, flujos FinTech y decisiones en agentes (LangGraph/CrewAI) |
+| 09 | [`09-recetario-de-ejemplos-practicos.md`](./09-recetario-de-ejemplos-practicos.md) | Código listo para copiar: triage omnicanal, reclamos FinTech, guardrails, LangGraph y batch processing |
+| 10 | [`10-tips-comunidad-antipatrones-y-limites-honestos.md`](./10-tips-comunidad-antipatrones-y-limites-honestos.md) | Trampas reales: sesgo en `noul`, límite en `head_max_len`, calibración de temperatura, `USE_TF=0`, límites |
+| 11 | [`11-guia-de-fine-tuning-y-calibracion.md`](./11-guia-de-fine-tuning-y-calibracion.md) | Fine-tuning con RLCD en Kaggle 2xT4 o Apple Silicon MPS, formato de dataset y ajuste de temperaturas |
 
 ---
 

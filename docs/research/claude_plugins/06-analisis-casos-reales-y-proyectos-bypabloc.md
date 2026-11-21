@@ -6,7 +6,7 @@
 
 ## 1. Desglose del Monorepo de Marketplaces: `claude-plugins`
 
-- **Ruta de proyecto:** [`~/projects/bypabloc/claude-plugins`](file:///home/bypabloc/projects/bypabloc/claude-plugins)
+- **Ruta de proyecto:** [`~/projects/bypabloc/claude-plugins`](https://github.com/bypabloc/claude-plugins)
 - **Repositorio local:** `/home/bypabloc/projects/bypabloc/claude-plugins`
 
 El proyecto implementa el patrón **Marketplace Monorepo Hub**, ideal para gestionar un catálogo de múltiples plugins dentro de un único repositorio Git.
@@ -63,7 +63,7 @@ claude-plugins/
 
 ## 2. Desglose del Plugin de Dialecto y Calidad: `claude-plugin-spanish-latam`
 
-- **Ruta de proyecto:** [`~/projects/bypabloc/claude-plugin-spanish-latam`](file:///home/bypabloc/projects/bypabloc/claude-plugin-spanish-latam)
+- **Ruta de proyecto:** [`~/projects/bypabloc/claude-plugin-spanish-latam`](../../../plugins/spanish-latam-style/)
 - **Repositorio local:** `/home/bypabloc/projects/bypabloc/claude-plugin-spanish-latam`
 
 El proyecto es un ejemplo de nivel de producción de cómo moldear de forma determinista el comportamiento, tono y estilo lingüístico de Claude Code.
