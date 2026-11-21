@@ -148,6 +148,10 @@ test('a commit is detected in a compound command and its hash read from the outp
   expect(isCommit('cd ../wt && git add -A && git commit -q -F - <<EOF')).toBe(true)
   expect(isCommit('git -C ../wt commit -m "x"')).toBe(true)
   expect([isCommit('git log -1'), isCommit('echo "git commit"'), isCommit('git commit --help')]).toEqual([false, false, false])
+  // Seen 2026-11-21: a script whose text names a commit is not a commit
+  expect(isCommit("python - <<'EOF'\nrun('cd /d/a && git commit -q -m y')\nEOF")).toBe(false)
+  expect(isCommit('printf "%s" "x && git commit -m y" > f')).toBe(false)
+  expect(isCommit("git add x && git commit -m 'a && b' <<EOF\nbody\nEOF")).toBe(true)
   expect(commitHash('[chore/003-x 70ff3be] chore: y\n 2 files changed')).toBe('70ff3be')
   expect(commitHash('')).toBeNull()
 })
@@ -162,6 +166,10 @@ test('the commit runs where its git -C or cd points, Git Bash paths included', (
   expect(commitDir('cd /d/Users/x/wt && git add -A && git commit -q -m y', 'D:/r')).toBe('D:/Users/x/wt')
   expect(commitDir('git -C "../wt" commit -m y', 'D:/r')).toBe('D:/r/../wt')
   expect(commitDir('git commit -m y', 'D:/r')).toBe('D:/r')
+  // Seen 2026-11-21: with two `cd`, the first one was taken and the reminder asked for another checkout's HEAD
+  expect(commitDir('cd /d/a && git fetch -q && cd ../b && git add x && git commit -q -m y', 'D:/r')).toBe('D:/a/../b')
+  expect(commitDir('cd /d/a && cd /d/b && git commit -m y', 'D:/r')).toBe('D:/b')
+  expect(commitDir('cd /d/a && git commit -m y && cd /d/b', 'D:/r')).toBe('D:/a')
 })
 
 test('a batch ends only after its last spec, and done always deletes the handoff', () => {

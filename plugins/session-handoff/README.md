@@ -144,6 +144,7 @@ claude --plugin-dir .         # probarlo en una sesión sin instalarlo
 
 El detalle de cada versión (síntoma, causa, prueba y lección), la vigilancia en sesiones reales y lo aprendido están en [docs/bitacora/](docs/bitacora/).
 
+* **0.5.2**: el hash del commit se busca en el directorio del último `cd` antes del `git commit` (no en el primero), y un heredoc o un texto entre comillas que nombra `git commit` ya no cuenta como commit.
 * **0.5.1**: un `git commit -q` que falla (por ejemplo, en un hook de pre-commit) ya no pide anotar el HEAD anterior: el hash de `git log -1` solo cuenta si ese commit tiene menos de 10 minutos.
 * **0.5.0**: multi-agente. En Codex y Antigravity corre como `dist/hook.mjs` (Node 20+): inyecta el handoff, no deja cerrar el turno, rechaza la pregunta con una spec en curso y pide los hashes. En OpenCode V2 corre en proceso. En Claude Code nada cambia.
 * **0.4.5**: si otra sesión se vinculó al mismo trabajo después que esta (otro agente que lo tomó), `Stop` ya no la empuja a seguir: la suelta con `reason: handed-off` (y el dueño en `owner`) para que dos agentes no editen el mismo árbol. El recordatorio de hashes sigue igual.
