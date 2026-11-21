@@ -3,7 +3,7 @@
 
   scripts/vigilancia.py [--since 6h] [--json] [--env all|local]
 
-Lee docs/vigilancia/proyectos.json y junta, sin modificar nada:
+Lee docs/vigilancia/proyectos.json (local, ignorado por git; plantilla en proyectos.example.json) y junta, sin modificar nada:
   - versiones instaladas (Claude Code y Codex) frente a las del marketplace del monorepo;
   - hooks de Codex (~/.codex/hooks.json) que apuntan a archivos inexistentes o que duplican a un plugin;
   - decisiones ask/block de Synapse y aprobaciones pendientes;
@@ -27,7 +27,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
-REGISTRY = ROOT / "docs" / "vigilancia" / "proyectos.json"
+REGISTRY = ROOT / "docs" / "vigilancia" / "proyectos.json"  # local: tiene rutas y nombres privados
+REGISTRY_EXAMPLE = REGISTRY.with_name("proyectos.example.json")
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
 OUR_MARKETPLACES = ("bypabloc-agents", "bypabloc")
 TAIL_BYTES = 4 * 1024 * 1024
@@ -252,8 +253,7 @@ def _semver_key(text: str) -> tuple[int, ...]:
 
 # --- Recolección y hallazgos ---------------------------------------------------------------------------------
 
-def collect_local(since_delta: timedelta) -> dict[str, Any]:
-    config = json.loads(REGISTRY.read_text(encoding="utf-8"))
+def collect_local(since_delta: timedelta, config: dict[str, Any]) -> dict[str, Any]:
     env = env_name()
     now = datetime.now(timezone.utc)
     since = now - since_delta
@@ -363,10 +363,17 @@ def main(argv: list[str] | None = None) -> int:
             stream.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
         except (AttributeError, ValueError):
             pass
+    if not REGISTRY.is_file():
+        print(f"Falta el registro local de proyectos vigilados: {REGISTRY}\n"
+              "No se versiona porque tiene rutas privadas. Créalo copiando la plantilla:\n"
+              f"  cp {REGISTRY_EXAMPLE} {REGISTRY}\n"
+              "y pon ahí tus proyectos (env, path, hosts, plugins).", file=sys.stderr)
+        return 2
+    config = json.loads(REGISTRY.read_text(encoding="utf-8"))
     delta = parse_since(args.since)
-    envs = [collect_local(delta)]
+    envs = [collect_local(delta, config)]
     if args.env == "all" and os.name == "nt":
-        wsl = collect_wsl(args.since, json.loads(REGISTRY.read_text(encoding="utf-8")))
+        wsl = collect_wsl(args.since, config)
         if wsl:
             envs.append(wsl)
     if args.json:

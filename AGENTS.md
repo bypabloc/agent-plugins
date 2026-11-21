@@ -16,7 +16,7 @@ lógica:
 | `.claude-plugin/marketplace.json` | Marketplace `bypabloc-agents` para Claude Code y Codex (fuentes relativas) |
 | `scripts/` | `bump.py` (versiones), `release.py` (release y espejos), `vigilancia.py` (colector), `actualizar_instalaciones.py` (todos los CLI tras un release) |
 | `docs/research/` | Investigación centralizada: hosts (`multi_agent_support`), plugins de Claude (`claude_plugins`), Laya |
-| `docs/vigilancia/` | Proyectos vigilados (`proyectos.json`) y reportes de cada revisión |
+| `docs/vigilancia/` | Plantilla del registro (`proyectos.example.json`); el registro y los reportes son locales |
 | `plugins/<x>/docs/bitacora/` | Una entrada por versión, vigilancia propia, aprendizajes y mejoras pendientes |
 | `tools/probe/`, `tools/fake-llm/` | Sondas de payload de cada host y LLM falso para los E2E |
 | `.claude/rules/`, `.claude/skills/` | Reglas siempre activas y skills `vigilar-plugins` y `reparar-plugin` |

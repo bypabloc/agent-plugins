@@ -10,3 +10,7 @@ __pycache__/
 *.log
 .DS_Store
 Thumbs.db
+# Vigilancia: el registro de proyectos y los reportes son de cada máquina (rutas y nombres privados)
+docs/vigilancia/proyectos.json
+docs/vigilancia/reportes/*
+!docs/vigilancia/reportes/README.md

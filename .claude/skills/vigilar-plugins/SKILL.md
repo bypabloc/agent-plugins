@@ -1,6 +1,6 @@
 ---
 name: vigilar-plugins
-description: Revisa cómo se comportan synapse, session-handoff y spanish-latam-style en los proyectos reales que los usan (Windows y WSL, Codex y Claude Code), clasifica cada hallazgo y deja un reporte. Usar cuando el usuario pida "revisa cómo van los plugins", "vigila el plugin", "qué pasó con synapse/handoff en klinikae o content-studio", pegue la salida de un agente que se detuvo o falló por un plugin, o cuando un /loop pida la revisión periódica.
+description: Revisa cómo se comportan synapse, session-handoff y spanish-latam-style en los proyectos reales que los usan (Windows y WSL, Codex y Claude Code), clasifica cada hallazgo y deja un reporte. Usar cuando el usuario pida "revisa cómo van los plugins", "vigila el plugin", "qué pasó con synapse/handoff en tal proyecto", pegue la salida de un agente que se detuvo o falló por un plugin, o cuando un /loop pida la revisión periódica.
 ---
 
 # Vigilar los plugins
@@ -53,7 +53,7 @@ Agrega una sección `## HH:MM` a `docs/vigilancia/reportes/AAAA-MM-DD.md` (créa
 
 | # | Clase | Plugin | Dónde | Hallazgo | Evidencia | Acción |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | bug | synapse | content-studio 012 (codex, windows) | … | traza 03:32:51, rollout-…jsonl | reparar-plugin → 1.7.1 |
+| 1 | bug | synapse | proyecto A, worktree 012 (codex, windows) | … | traza 03:32:51, rollout-…jsonl | reparar-plugin → 1.7.1 |
 ```
 
 Al usuario dale solo lo accionable: qué se arregló, qué necesita su aprobación (con el comando exacto) y qué quedó
