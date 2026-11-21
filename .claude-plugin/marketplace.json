@@ -24,6 +24,15 @@
       "category": "productivity",
       "source": "./plugins/session-handoff",
       "homepage": "https://github.com/bypabloc/agent-plugin-session-handoff"
+    },
+    {
+      "name": "spanish-latam-style",
+      "description": "Aplica y refuerza el uso estricto de español neutro latinoamericano estándar (tuteo profesional, sin voseo ni modismos regionales) en interacciones, documentación, commits y código. Solo Claude Code.",
+      "version": "1.0.0",
+      "author": { "name": "Pablo Contreras", "url": "https://github.com/bypabloc" },
+      "category": "development",
+      "source": "./plugins/spanish-latam-style",
+      "homepage": "https://github.com/bypabloc/claude-plugin-spanish-latam"
     }
   ]
 }
