@@ -70,7 +70,7 @@ def test_bump_rejects_unknown_plugin(repo: Path) -> None:
 
 
 def test_audit_lists_old_version_without_partial_matches(repo: Path) -> None:
-    (repo / "plugins" / "alpha" / "README.md").write_text("Versión 1.0.0\nNo es 11.0.0 ni 1.0.01\n")
+    (repo / "plugins" / "alpha" / "README.md").write_text("Versión 1.0.0\nNo es 11.0.0 ni 1.0.01\n", encoding="utf-8")
     hits = bump.audit("alpha", "1.0.0")
     assert any(h.endswith("README.md:1: Versión 1.0.0") for h in hits)
     assert not any("README.md:2" in h for h in hits)

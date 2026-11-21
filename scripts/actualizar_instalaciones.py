@@ -43,6 +43,7 @@ class Step:
     cwd: Path = ROOT
     env: dict[str, str] = field(default_factory=dict)
     unset: tuple[str, ...] = ()
+    needs: tuple[int, ...] = ()  # índices de pasos que deben salir bien antes (si no, este se omite)
 
     def show(self) -> str:
         prefix = " ".join(f"{k}={v}" for k, v in self.env.items())
@@ -96,11 +97,17 @@ def claude_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
                 for item in items if key.partition("@")[0] in ours and key.partition("@")[2] in (OLD, NEW)]
         if not mine:
             continue
-        mk = lambda cmd, cwd=ROOT: Step(where, [exe, *cmd], cwd, env, unset)  # noqa: E731
-        steps.append(mk(["plugin", "marketplace", "update", NEW] if NEW in markets
-                        else ["plugin", "marketplace", "add", SOURCE]))
+        def mk(cmd: list[str], cwd: Path = ROOT, needs: tuple[int, ...] = ()) -> int:
+            steps.append(Step(where, [exe, *cmd], cwd, env, unset, needs))
+            return len(steps) - 1
+
+        # Sin el marketplace nuevo (p. ej. bloqueado por una política empresarial) no se toca nada del perfil
+        market = mk(["plugin", "marketplace", "update", NEW] if NEW in markets
+                    else ["plugin", "marketplace", "add", SOURCE])
+        migrated: list[int] = []
         have_new = {(p, i.get("scope"), i.get("projectPath")) for p, m, i in mine if m == NEW}
         done: set[tuple] = set()
+        market_idx = market
         for plugin, market, item in mine:
             scope, project = item.get("scope", "user"), item.get("projectPath")
             cwd = Path(project) if project else ROOT
@@ -109,17 +116,18 @@ def claude_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
                 continue
             key = (plugin, scope, project)
             if market == OLD:
-                if key not in have_new and key not in done:
-                    steps.append(mk(["plugin", "install", f"{plugin}@{NEW}", "--scope", scope], cwd))
-                steps.append(mk(["plugin", "uninstall", f"{plugin}@{OLD}", "--scope", scope], cwd))
+                # El viejo se desinstala solo si el nuevo quedó instalado en el mismo scope
+                gate = (market_idx,) if key in have_new or key in done else (
+                    mk(["plugin", "install", f"{plugin}@{NEW}", "--scope", scope], cwd, (market_idx,)),)
+                migrated.append(mk(["plugin", "uninstall", f"{plugin}@{OLD}", "--scope", scope], cwd, gate))
             elif key not in done:
-                steps.append(mk(["plugin", "update", f"{plugin}@{NEW}", "--scope", scope], cwd))
+                mk(["plugin", "update", f"{plugin}@{NEW}", "--scope", scope], cwd, (market_idx,))
             done.add(key)
-            if scope in ("project", "local"):
+            if market == OLD and scope in ("project", "local"):
                 notes.append(f"[{where}] {plugin} ({scope}) cambia {cwd / '.claude' / 'settings.json'}: queda sin commit")
         others = [k for k in installed if k.endswith(f"@{OLD}") and k.partition("@")[0] not in ours]
         if OLD in markets and not others:
-            steps.append(mk(["plugin", "marketplace", "remove", OLD]))
+            mk(["plugin", "marketplace", "remove", OLD], needs=(market_idx, *migrated))
     return steps, notes
 
 
@@ -141,12 +149,14 @@ def codex_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
         return [], []
     steps = [Step(where, [exe, "plugin", "marketplace", "upgrade", NEW] if NEW in markets
                   else [exe, "plugin", "marketplace", "add", SOURCE])]
+    removed: list[int] = []
     for plugin in sorted({p for p, _ in mine}):
-        steps.append(Step(where, [exe, "plugin", "add", f"{plugin}@{NEW}"]))
+        steps.append(Step(where, [exe, "plugin", "add", f"{plugin}@{NEW}"], needs=(0,)))
         if (plugin, OLD) in mine:
-            steps.append(Step(where, [exe, "plugin", "remove", f"{plugin}@{OLD}"]))
+            steps.append(Step(where, [exe, "plugin", "remove", f"{plugin}@{OLD}"], needs=(len(steps) - 1,)))
+            removed.append(len(steps) - 1)
     if OLD in markets and not [p for p, m in plugins if m == OLD and p not in ours]:
-        steps.append(Step(where, [exe, "plugin", "marketplace", "remove", OLD]))
+        steps.append(Step(where, [exe, "plugin", "marketplace", "remove", OLD], needs=(0, *removed)))
     return steps, [f"[{where}] tras actualizar, abre Codex y ejecuta /hooks para confiar en los hooks nuevos"]
 
 
@@ -168,14 +178,21 @@ def local(apply: bool) -> int:
     ours = our_plugins()
     steps, notes = claude_steps(ours)
     codex, codex_notes = codex_steps(ours)
-    steps += codex
+    offset = len(steps)
+    steps += [Step(s.where, s.cmd, s.cwd, s.env, s.unset, tuple(i + offset for i in s.needs)) for s in codex]
     notes += codex_notes
     failed = 0
-    for step in steps:
+    ok_by_index: dict[int, bool] = {}
+    for index, step in enumerate(steps):
         if not apply:
             print(f"(plan) {step.show()}")
             continue
+        if not all(ok_by_index.get(i, False) for i in step.needs):
+            ok_by_index[index] = False
+            print(f"- {step.show()}  → omitido: falló un paso previo (no se quita nada sin reemplazo)")
+            continue
         ok, last = run(step)
+        ok_by_index[index] = ok
         failed += not ok
         print(f"{'✓' if ok else '✗'} {step.show()}{'' if ok else '  → ' + last}")
     for note in notes:
