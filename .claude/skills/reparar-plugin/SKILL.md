@@ -10,8 +10,9 @@ Lee primero el manual del plugin: `plugins/synapse/AGENTS.md` o `plugins/session
 
 ## Pasos
 
-1. **Rama**: desde `dev` actualizado, `fix/<plugin>-<tema>` o `feat/<plugin>-<tema>`. Si ya estás en una rama de
-   trabajo de este repo, sigue en ella.
+1. **Worktree y rama**: nunca en el checkout principal. Desde `dev` actualizado,
+   `git worktree add -b fix/<plugin>-<tema> ../agent-plugins-worktrees/fix-<plugin>-<tema> origin/dev`
+   (regla [`flujo.md`](../../rules/flujo.md)). Si ya estás en el worktree de este trabajo, sigue en él.
 2. **Reproducir**: escribe el test con los datos reales del hallazgo (ruta, comando, payload del host, texto). Debe
    fallar antes del cambio, y debes verlo fallar.
    - synapse: un caso en `tests/cases/<hook>.json` (sin código) o un test en `tests/unit/test_hosts.py` para la
