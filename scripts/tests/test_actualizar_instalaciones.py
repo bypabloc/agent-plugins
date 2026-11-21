@@ -71,3 +71,13 @@ def test_successful_migration_removes_the_old_marketplace_last(tmp_path, monkeyp
         "plugin uninstall spanish-latam-style@bypabloc --scope user",
         "plugin marketplace remove bypabloc",
     ]
+
+
+def test_user_level_steps_run_from_home_not_from_the_repo(tmp_path, monkeypatch) -> None:
+    # Visto el 2026-11-21: desde un worktree en /mnt/d, el git de WSL no lee su .git (ruta de Windows) y
+    # `codex plugin marketplace upgrade` fallaba con "not a git repository"
+    make_profile(tmp_path)
+    monkeypatch.setattr(ai.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.setattr(ai.shutil, "which", lambda name: name if name == "claude" else None)
+    steps, _ = ai.claude_steps({"spanish-latam-style"})
+    assert steps and all(step.cwd == tmp_path for step in steps)

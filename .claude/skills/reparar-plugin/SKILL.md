@@ -43,9 +43,13 @@ El usuario autorizó (2026-11-21) que toda reparación termine publicada e insta
 ```bash
 gh pr checks <n> --watch                                     # CI verde; si falla, se arregla antes de seguir
 gh pr merge <n> --merge                                      # a dev
-gh pr create --base main --head dev --title "..." --body "..."   # dev → main
-gh pr checks <m> --watch && gh pr merge <m> --merge
-git fetch origin && git tag <plugin>-v<X.Y.Z> origin/main && git push origin <plugin>-v<X.Y.Z>   # uno por plugin
+# dev → main: reutiliza el PR si otra sesión ya lo abrió; si ya se fusionó, sigue
+m=$(gh pr list --base main --head dev --state open --json number -q '.[0].number')
+[ -n "$m" ] || m=$(gh pr create --base main --head dev --title "..." --body "..." | grep -o '[0-9]*$')
+gh pr checks "$m" --watch && gh pr merge "$m" --merge       # "already merged" también vale
+git fetch origin
+git show origin/main:plugins/<plugin>/.claude-plugin/plugin.json | grep '"version": "<X.Y.Z>"'   # main tiene la versión
+git tag <plugin>-v<X.Y.Z> origin/main && git push origin <plugin>-v<X.Y.Z>   # uno por plugin
 gh run watch "$(gh run list --workflow release.yml -L 1 --json databaseId -q '.[0].databaseId')"
 python scripts/actualizar_instalaciones.py                   # plan
 python scripts/actualizar_instalaciones.py --apply           # todos los perfiles y CLI, Windows y WSL

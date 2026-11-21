@@ -40,14 +40,14 @@ TIMEOUT = 600
 class Step:
     where: str
     cmd: list[str]
-    cwd: Path = ROOT
+    cwd: Path = field(default_factory=Path.home)  # fuera del repo: en WSL, un worktree en /mnt/d rompe git
     env: dict[str, str] = field(default_factory=dict)
     unset: tuple[str, ...] = ()
     needs: tuple[int, ...] = ()  # índices de pasos que deben salir bien antes (si no, este se omite)
 
     def show(self) -> str:
         prefix = " ".join(f"{k}={v}" for k, v in self.env.items())
-        place = "" if self.cwd == ROOT else f"  (en {self.cwd})"
+        place = "" if self.cwd == Path.home() else f"  (en {self.cwd})"
         return f"[{self.where}] {prefix + ' ' if prefix else ''}{' '.join(self.cmd)}{place}"
 
 
@@ -97,8 +97,8 @@ def claude_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
                 for item in items if key.partition("@")[0] in ours and key.partition("@")[2] in (OLD, NEW)]
         if not mine:
             continue
-        def mk(cmd: list[str], cwd: Path = ROOT, needs: tuple[int, ...] = ()) -> int:
-            steps.append(Step(where, [exe, *cmd], cwd, env, unset, needs))
+        def mk(cmd: list[str], cwd: Path | None = None, needs: tuple[int, ...] = ()) -> int:
+            steps.append(Step(where, [exe, *cmd], cwd or Path.home(), env, unset, needs))
             return len(steps) - 1
 
         # Sin el marketplace nuevo (p. ej. bloqueado por una política empresarial) no se toca nada del perfil
@@ -110,7 +110,7 @@ def claude_steps(ours: set[str]) -> tuple[list[Step], list[str]]:
         market_idx = market
         for plugin, market, item in mine:
             scope, project = item.get("scope", "user"), item.get("projectPath")
-            cwd = Path(project) if project else ROOT
+            cwd = Path(project) if project else Path.home()
             if scope in ("project", "local") and not cwd.is_dir():
                 notes.append(f"[{where}] {plugin}@{market} ({scope}) en {project}: la carpeta no existe, se omite")
                 continue
