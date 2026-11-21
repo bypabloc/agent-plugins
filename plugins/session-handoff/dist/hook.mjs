@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 
 // hooks/handoff.ts
-var VERSION = "0.5.2";
+var VERSION = "0.5.3";
 var FILES = ["PROGRESS.md", "DECISIONS.md", "NOTES.md"];
 var PHASES = ["implementation", "verification", "integration", "external-wait", "closing"];
 var LINE_MAX = 120;
@@ -361,6 +361,7 @@ var emptyState = (session, host) => ({
   lastStop: null,
   lastStopTurn: null,
   lastStopOutcome: null,
+  lastStopAt: null,
   pendingCommits: [],
   compacted: false,
   updatedAt: 0
@@ -495,13 +496,17 @@ async function askQuestion(c) {
   await logEvent(c.io, place.store, { event: "ask.deny", host: c.host, session: c.session, work });
   return askDeniedText(config);
 }
+var DUPLICATE_STOP_MS = 2000;
 async function stop(c) {
   const h = await here(c);
-  if (c.turn && h.state.lastStopTurn === c.turn)
+  const now = c.now ?? Date.now();
+  const duplicate = h.state.lastStopAt !== null && now - h.state.lastStopAt < DUPLICATE_STOP_MS;
+  if (c.turn && h.state.lastStopTurn === c.turn && duplicate)
     return h.state.lastStopOutcome;
   const answer = await stopAnswer(c, h);
   h.state.lastStopTurn = c.turn || null;
   h.state.lastStopOutcome = answer;
+  h.state.lastStopAt = now;
   await saveState(c.io, h.place.store, h.state, c.now);
   return answer;
 }

@@ -15,6 +15,7 @@ sesiones reales y qué se aprendió en el camino. Es el changelog largo; el cort
 
 | Versión | Fecha | Commit | Resumen |
 | :--- | :--- | :--- | :--- |
+| [0.5.3](versiones/0.5.3.md) | 2026-11-21 | ver el tag `session-handoff-v0.5.3` | Un Stop continuado en el mismo turno vuelve a evaluar PROGRESS.md; antes repetía el bloqueo guardado. |
 | [0.5.2](versiones/0.5.2.md) | 2026-11-21 | ver el tag `session-handoff-v0.5.2` | El commit se busca en el `cd` correcto y no en el texto de un script. |
 | [0.5.1](versiones/0.5.1.md) | 2026-11-21 | ver el tag `session-handoff-v0.5.1` | Un `git commit -q` que falló no pide anotar el HEAD viejo. |
 | [0.4.5](versiones/0.4.5.md) | 2026-11-20 | ver el tag `session-handoff-v0.4.5` | Una sesión cuyo trabajo tomó otra ya no es empujada a seguir. |
