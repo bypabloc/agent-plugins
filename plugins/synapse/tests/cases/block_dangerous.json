@@ -1202,6 +1202,18 @@
     "expected_in_stderr": "structure.agent_wrapper_unsafe"
   },
   {
+    "name": "pass_agent_wrapper_help_runs_no_agent",
+    "payload": {"tool_name": "Bash", "tool_input": {"command": "codex exec --help"}, "cwd": "{project}"},
+    "expected_exit": 0,
+    "expected_decision": null
+  },
+  {
+    "name": "pass_agent_wrapper_version_runs_no_agent",
+    "payload": {"tool_name": "Bash", "tool_input": {"command": "claude -p --version"}, "cwd": "{project}"},
+    "expected_exit": 0,
+    "expected_decision": null
+  },
+  {
     "name": "pass_agent_cli_management_is_not_a_wrapper",
     "payload": {"tool_name": "Bash", "tool_input": {"command": "codex plugin list"}, "cwd": "{project}"},
     "expected_exit": 0
