@@ -1,0 +1,39 @@
+{
+  "_doc": "Proyectos que usan los plugins y se vigilan. Ver docs/vigilancia/README.md. env: windows | wsl. glob: true expande el path.",
+  "wsl_distro": "",
+  "projects": [
+    {
+      "name": "klinikae",
+      "env": "wsl",
+      "path": "~/projects/bypabloc/klinikae",
+      "hosts": ["codex"],
+      "plugins": ["session-handoff", "synapse"]
+    },
+    {
+      "name": "content-studio",
+      "env": "windows",
+      "path": "D:/Users/pacg1/projects/bypabloc/content-studio",
+      "hosts": ["codex", "claude"],
+      "plugins": ["session-handoff", "synapse"]
+    },
+    {
+      "name": "content-studio-worktrees",
+      "env": "windows",
+      "path": "D:/Users/pacg1/projects/bypabloc/content-studio-worktrees/*",
+      "glob": true,
+      "hosts": ["codex", "claude"],
+      "plugins": ["session-handoff", "synapse"]
+    },
+    {
+      "name": "agent-plugins",
+      "env": "windows",
+      "path": "D:/Users/pacg1/projects/bypabloc/agent-plugins",
+      "hosts": ["claude"],
+      "plugins": ["session-handoff", "spanish-latam-style"]
+    }
+  ],
+  "discover": [
+    { "env": "windows", "root": "D:/Users/pacg1/projects", "depth": 3 },
+    { "env": "wsl", "root": "~/projects", "depth": 3 }
+  ]
+}
