@@ -6,7 +6,7 @@
 import type { HandoffConfig, WorkStatus } from '../types'
 
 /** The plugin version; equal to `.claude-plugin/plugin.json` (checked on every release). Each log line carries it. */
-export const VERSION = '0.5.0'
+export const VERSION = '0.5.1'
 
 export const FILES =['PROGRESS.md', 'DECISIONS.md', 'NOTES.md'] as const
 export const PHASES = ['implementation', 'verification', 'integration', 'external-wait', 'closing'] as const
@@ -376,6 +376,18 @@ export function isCommit(command: string): boolean {
 /** The short hash in `git commit` output (`[branch abc1234] msg`), or null with `-q`. */
 export function commitHash(stdout: string): string | null {
   return /^\[[^\]\s]+(?: \([^)]*\))? ([0-9a-f]{7,40})\]/m.exec(stdout)?.[1] ?? null
+}
+
+/** How old HEAD may be for `git log -1` to count as the commit that just ran (a `-q` commit has no hash in its output). */
+export const FRESH_COMMIT_SECONDS = 600
+
+/**
+ * The hash in `git log -1 --format=%h %ct` when that commit is fresh, else null: a `git commit -q` that failed in a
+ * hook leaves the old HEAD, and asking for it made the agent note someone else's commit (2026-11-21).
+ */
+export function freshCommit(line: string, nowMs: number): string | null {
+  const m = /^([0-9a-f]{7,40})\s+(\d+)$/.exec(line.trim())
+  return m && nowMs / 1000 - Number(m[2]) <= FRESH_COMMIT_SECONDS ? m[1]! : null
 }
 
 /** Where the commit ran: the `git -C <dir>` or the `cd <dir> &&` before it, else the session's cwd. */

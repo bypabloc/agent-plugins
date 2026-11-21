@@ -4,7 +4,7 @@
  * metrics or UI here. register.tsx stays as it is (D-07).
  */
 import {
-  askDeniedText, badPhaseText, blockedForUser, boundMessage, commitDir, commitHash, isCommit, longText,
+  askDeniedText, badPhaseText, blockedForUser, boundMessage, commitDir, commitHash, freshCommit, isCommit, longText,
   missingHashes, pendingText, progressFields, stopDecision, tooLong, unboundMessage,
 } from './handoff' // fmt: skip
 import { loadState, saveState, type SessionState } from './state'
@@ -94,7 +94,7 @@ export async function postTool(c: Ctx & { event: PostTool }): Promise<string | n
   if (c.event.tool === 'shell') {
     if (!work || !isCommit(c.event.command)) return null
     const sha = commitHash(c.event.output) ??
-      ((await c.io.git(commitDir(c.event.command, c.cwd), ['log', '-1', '--format=%h'])) || null)
+      freshCommit(await c.io.git(commitDir(c.event.command, c.cwd), ['log', '-1', '--format=%h %ct']), c.now ?? Date.now())
     const text = pendingText(work, await missingCommits(c, h, work, sha ? [sha] : []))
     if (text) await logEvent(c.io, h.place.store, { event: 'commit.remind', host: c.host, session: c.session, work })
     return text

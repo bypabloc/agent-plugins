@@ -1,0 +1,32 @@
+{
+  "_doc": "Plantilla. Cópiala a docs/vigilancia/proyectos.json (ignorado por git) y pon tus proyectos. env: windows | wsl. glob: true expande el path.",
+  "wsl_distro": "",
+  "projects": [
+    {
+      "name": "mi-proyecto-wsl",
+      "env": "wsl",
+      "path": "~/projects/mi-proyecto-wsl",
+      "hosts": ["codex"],
+      "plugins": ["session-handoff", "synapse"]
+    },
+    {
+      "name": "mi-proyecto-windows",
+      "env": "windows",
+      "path": "C:/Users/yo/projects/mi-proyecto-windows",
+      "hosts": ["codex", "claude"],
+      "plugins": ["session-handoff", "synapse"]
+    },
+    {
+      "name": "mi-proyecto-worktrees",
+      "env": "windows",
+      "path": "C:/Users/yo/projects/mi-proyecto-worktrees/*",
+      "glob": true,
+      "hosts": ["claude"],
+      "plugins": ["session-handoff"]
+    }
+  ],
+  "discover": [
+    { "env": "windows", "root": "C:/Users/yo/projects", "depth": 3 },
+    { "env": "wsl", "root": "~/projects", "depth": 3 }
+  ]
+}
