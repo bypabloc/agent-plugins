@@ -1,0 +1,5 @@
+{
+  "files": [
+    { "path": ".claude-plugin/plugin.json", "key": "version" }
+  ]
+}

@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 MIRRORS = {
     "synapse": "git@github.com:bypabloc/agent-plugin-synapse.git",
     "session-handoff": "git@github.com:bypabloc/agent-plugin-session-handoff.git",
+    "spanish-latam-style": "git@github.com:bypabloc/claude-plugin-spanish-latam.git",
 }
 
 

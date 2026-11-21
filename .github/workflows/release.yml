@@ -6,6 +6,7 @@ on:
     tags:
       - "synapse-v*"
       - "session-handoff-v*"
+      - "spanish-latam-style-v*"
 
 permissions:
   contents: read
@@ -34,9 +35,15 @@ jobs:
         env:
           SYNAPSE_KEY: ${{ secrets.MIRROR_DEPLOY_KEY_SYNAPSE }}
           HANDOFF_KEY: ${{ secrets.MIRROR_DEPLOY_KEY_HANDOFF }}
+          SPANISH_KEY: ${{ secrets.MIRROR_DEPLOY_KEY_SPANISH }}
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          if [ "${{ steps.tag.outputs.plugin }}" = synapse ]; then key="$SYNAPSE_KEY"; else key="$HANDOFF_KEY"; fi
+          case "${{ steps.tag.outputs.plugin }}" in
+            synapse) key="$SYNAPSE_KEY" ;;
+            session-handoff) key="$HANDOFF_KEY" ;;
+            spanish-latam-style) key="$SPANISH_KEY" ;;
+            *) echo "plugin desconocido" >&2; exit 1 ;;
+          esac
           printf '%s\n' "$key" > ~/.ssh/mirror && chmod 600 ~/.ssh/mirror
           ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
       - name: Publicar espejo

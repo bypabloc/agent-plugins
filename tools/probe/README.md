@@ -18,4 +18,4 @@ tools/probe/sanitize.py <capturas> <host> <linux|windows> <versión>
 
 - Codex usa un `CODEX_HOME` temporal con una copia de `auth.json`. `codex exec` corre por defecto con sandbox de solo lectura, así que para capturar escrituras usa `-s workspace-write` (WSL) o `danger-full-access` (Windows, donde `workspace-write` rechaza los comandos).
 - La sonda solo guarda el **valor** de las variables de rutas del plugin. Del resto guarda el nombre, para que nunca se cuelen tokens heredados.
-- Las respuestas que dieron las capturas están en [04 §10 del spec](../../docs/specs/001-plugins-multi-agente/04-pruebas-y-verificacion.md#10-respuestas-de-f1-sondas-del-2026-11-20).
+- Las respuestas que dieron las capturas están en [04 §10 del spec](https://github.com/bypabloc/agent-plugins/blob/synapse-v1.7.0/docs/specs/001-plugins-multi-agente/04-pruebas-y-verificacion.md#10-respuestas-de-f1-sondas-del-2026-11-20).

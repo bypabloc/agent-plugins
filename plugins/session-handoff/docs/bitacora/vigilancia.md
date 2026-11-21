@@ -50,3 +50,11 @@ un cron de la sesión cada 30 min) sobre los proyectos que usan el plugin.
 4. Actualizar en cada entorno (scope `user` **y** cualquier scope `project` del proyecto) y pedir
    `/reload-plugins` en las sesiones abiertas.
 5. Archivo nuevo en [versiones/](versiones/) y, si aplica, una entrada en [aprendizajes.md](aprendizajes.md).
+
+## En Codex (desde 0.5.0)
+
+| Síntoma | Patrón | Qué comprobar |
+| :--- | :--- | :--- |
+| El plugin no corre en Codex | Plugin habilitado, sin eventos con `host: codex` y sin entradas `session-handoff@bypabloc-agents` en `[hooks.state]` de `~/.codex/config.toml` | Los hooks no se aprobaron: `/hooks` en Codex para confiar (también tras cada actualización) |
+| Inyección doble | En el mismo segundo, un `inject` sin `v` (con `agent`, `work` y `snapshot`) y un `inject.compact` con `v` | Un hook propio del proyecto (`.agents/hooks/session_handoff.py` en `~/.codex/hooks.json`) corre además del plugin (klinikae, 2026-11-21) |
+| Otro agente tomó el trabajo | Eventos de una sesión sin vínculo en `.sessions/` escribiendo el mismo `PROGRESS.md` | Desde 0.4.5 la sesión anterior se suelta con `handed-off`; si se reabre, revisa el dueño |

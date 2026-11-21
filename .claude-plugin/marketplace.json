@@ -10,7 +10,7 @@
     {
       "name": "synapse",
       "description": "Guardrails de seguridad antes de cada tool: comandos destructivos, escrituras fuera del proyecto, lectura de .env, secretos y archivos protegidos (reglas deterministas + Laya System 1).",
-      "version": "1.7.0",
+      "version": "1.7.1",
       "author": { "name": "Pablo Contreras", "url": "https://github.com/bypabloc" },
       "category": "security",
       "source": "./plugins/synapse",
@@ -24,6 +24,15 @@
       "category": "productivity",
       "source": "./plugins/session-handoff",
       "homepage": "https://github.com/bypabloc/agent-plugin-session-handoff"
+    },
+    {
+      "name": "spanish-latam-style",
+      "description": "Aplica y refuerza el uso estricto de español neutro latinoamericano estándar (tuteo profesional, sin voseo ni modismos regionales) en interacciones, documentación, commits y código. Hecho para Claude Code; Codex también ejecuta sus hooks.",
+      "version": "1.0.0",
+      "author": { "name": "Pablo Contreras", "url": "https://github.com/bypabloc" },
+      "category": "development",
+      "source": "./plugins/spanish-latam-style",
+      "homepage": "https://github.com/bypabloc/claude-plugin-spanish-latam"
     }
   ]
 }

@@ -103,9 +103,12 @@ def audit(plugin: str, old: str) -> list[str]:
     hits: list[str] = []
     needle = re.compile(r"(?<![\d.])" + re.escape(old) + r"(?![\d.])")
     for path in sorted((PLUGINS / plugin).rglob("*")):
-        if not path.is_file() or AUDIT_SKIP & set(path.relative_to(ROOT).parts) or path.name.endswith(".lock"):
+        # Lo omitido se descarta antes de tocar el disco: en Windows, tmp/ puede tener archivos que dejó WSL sin acceso
+        if AUDIT_SKIP & set(path.relative_to(ROOT).parts) or path.name.endswith(".lock"):
             continue
         try:
+            if not path.is_file():
+                continue
             lines = path.read_text(encoding="utf-8").splitlines()
         except (UnicodeDecodeError, OSError):
             continue
