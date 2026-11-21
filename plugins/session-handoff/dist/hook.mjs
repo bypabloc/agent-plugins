@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 
 // hooks/handoff.ts
-var VERSION = "0.5.1";
+var VERSION = "0.5.2";
 var FILES = ["PROGRESS.md", "DECISIONS.md", "NOTES.md"];
 var PHASES = ["implementation", "verification", "integration", "external-wait", "closing"];
 var LINE_MAX = 120;
@@ -219,8 +219,11 @@ function stopDecision(progress, previous, work, c, now = Date.now()) {
   ];
   return { block: decide ? `[session-handoff] ${decideText(c, fields.reason ?? "sin motivo")}` : texts[blocks - 1], blocks };
 }
+var withoutHeredocs = (command) => command.replace(/<<-?\s*(['"]?)(\w+)\1([^\n]*)\n[\s\S]*?\n[ \t]*\2[ \t]*(?=\n|$)/g, (_m, _q, _tag, rest) => `<<H${rest}`);
+var maskQuotes = (code) => code.replace(/'[^']*'|"(?:\\.|[^"\\])*"/g, (m) => m[0] + " ".repeat(m.length - 2) + m[m.length - 1]);
+var COMMIT_CALL = /(?:^|&&|;|\|\||\n)\s*git\s+(?:-[Cc]\s+\S+\s+)*commit\b([^&;\n]*)/g;
 function isCommit(command) {
-  const calls = command.matchAll(/(?:^|&&|;|\|\||\n)\s*git\s+(?:-[Cc]\s+\S+\s+)*commit\b([^&;\n]*)/g);
+  const calls = maskQuotes(withoutHeredocs(command)).matchAll(COMMIT_CALL);
   return [...calls].some((m) => !/--help|--dry-run/.test(m[1] ?? ""));
 }
 function commitHash(stdout) {
@@ -233,13 +236,25 @@ function freshCommit(line, nowMs) {
 }
 function commitDir(command, cwd) {
   const quoted = String.raw`(?:"([^"]+)"|'([^']+)'|([^\s&;|]+))`;
-  const at = new RegExp(String.raw`git\s+-C\s+${quoted}\s+commit\b`).exec(command) ?? new RegExp(String.raw`(?:^|&&|;)\s*cd\s+${quoted}\s*&&`).exec(command);
-  const dir = at ? at[1] ?? at[2] ?? at[3] ?? "" : "";
-  const native = dir.replace(/^\/([a-z])\//i, (_, d) => `${d.toUpperCase()}:/`);
-  if (!native)
-    return cwd;
-  return /^([a-z]:)?[\\/]/i.test(native) ? native : `${cwd.replace(/[\\/]+$/, "")}/${native}`;
+  const code = withoutHeredocs(command);
+  const mask = maskQuotes(code);
+  const commit = new RegExp(COMMIT_CALL.source).exec(mask);
+  const before = commit ? code.slice(0, commit.index + commit[0].length) : code;
+  const pick = (m) => native(m[1] ?? m[2] ?? m[3] ?? "");
+  const gitC = new RegExp(String.raw`git\s+-C\s+${quoted}\s+commit\b`).exec(before);
+  if (gitC)
+    return join(cwd, pick(gitC));
+  let dir = cwd;
+  const cd = new RegExp(String.raw`(?:^|&&|;)\s*cd\s+${quoted}(?=\s*&&)`, "g");
+  for (const m of mask.slice(0, before.length).matchAll(cd)) {
+    const real = new RegExp(cd.source).exec(code.slice(m.index));
+    if (real)
+      dir = join(dir, pick(real));
+  }
+  return dir;
 }
+var native = (dir) => dir.replace(/^\/([a-z])\//i, (_, d) => `${d.toUpperCase()}:/`);
+var join = (base, dir) => !dir ? base : /^([a-z]:)?[\/]/i.test(dir) ? dir : `${base.replace(/[\/]+$/, "")}/${dir}`;
 function missingHashes(hashes, progress) {
   return [...new Set(hashes.filter(Boolean))].filter((h) => !progress.includes(h));
 }
