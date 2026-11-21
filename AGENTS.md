@@ -124,7 +124,7 @@ python scripts/actualizar_instalaciones.py --apply          # todos los CLI y pe
 | Host | Cómo se actualiza |
 | :--- | :--- |
 | Claude Code | `claude plugin marketplace update bypabloc-agents && claude plugin update <plugin>@bypabloc-agents` en cada perfil (`CLAUDE_CONFIG_DIR`) y cada scope `project`; `/reload-plugins` en las sesiones abiertas |
-| Codex | `codex plugin marketplace upgrade` y luego `/hooks` para **volver a confiar**: Codex ata los hooks al hash de los scripts |
+| Codex | `codex plugin marketplace upgrade` y luego `/hooks` para **volver a confiar**: Codex ata los hooks al hash de los scripts. Las sesiones abiertas siguen en la versión con que arrancaron (el script la retiene 7 días en la caché): reinícialas |
 | Antigravity | `agy plugin install https://github.com/bypabloc/agent-plugin-<x>` (no hay `update` para instalaciones por URL) |
 | OpenCode | Con `#vX.Y.Z` fijado, se cambia la referencia; con `#main`, se actualiza al arrancar |
 
