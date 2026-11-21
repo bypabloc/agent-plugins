@@ -6,7 +6,7 @@ Este repo es la **fuente única** de tres plugins. Antes de tocar uno, lee su ma
 | :--- | :--- | :--- | :--- |
 | `synapse` | Guardrails antes de cada tool (Python, reglas deterministas + Laya) | [`plugins/synapse/AGENTS.md`](../../plugins/synapse/AGENTS.md) | Claude Code, Codex, Antigravity, OpenCode |
 | `session-handoff` | Estado del trabajo en disco, reinyección, `Stop`, hashes (TypeScript) | [`plugins/session-handoff/AGENTS.md`](../../plugins/session-handoff/AGENTS.md) | Claude Code (mod), Codex, Antigravity, OpenCode |
-| `spanish-latam-style` | Español neutro latinoamericano en respuestas, docs y commits | [`plugins/spanish-latam-style/README.md`](../../plugins/spanish-latam-style/README.md) | Solo Claude Code |
+| `spanish-latam-style` | Español neutro latinoamericano en respuestas, docs y commits | [`plugins/spanish-latam-style/README.md`](../../plugins/spanish-latam-style/README.md) | Claude Code (Codex ejecuta sus hooks) |
 
 ## Reglas al cambiar un plugin
 

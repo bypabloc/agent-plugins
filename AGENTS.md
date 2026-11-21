@@ -12,7 +12,7 @@ lógica:
 | :--- | :--- |
 | `plugins/synapse/` | Guardrails de seguridad (Python + Laya). Espejo: `bypabloc/agent-plugin-synapse` |
 | `plugins/session-handoff/` | Handoff de sesión (TypeScript, mod de Claude Code + CLI Node). Espejo: `bypabloc/agent-plugin-session-handoff` |
-| `plugins/spanish-latam-style/` | Español neutro latinoamericano (solo Claude Code). Espejo: `bypabloc/claude-plugin-spanish-latam` |
+| `plugins/spanish-latam-style/` | Español neutro latinoamericano (Claude Code; Codex ejecuta sus hooks). Espejo: `bypabloc/claude-plugin-spanish-latam` |
 | `.claude-plugin/marketplace.json` | Marketplace `bypabloc-agents` para Claude Code y Codex (fuentes relativas) |
 | `scripts/` | `bump.py` (versiones), `release.py` (release y espejos), `vigilancia.py` (colector de vigilancia) |
 | `docs/research/` | Investigación centralizada: hosts (`multi_agent_support`), plugins de Claude (`claude_plugins`), Laya |

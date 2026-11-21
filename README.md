@@ -7,7 +7,7 @@ Antigravity y OpenCode**. Es la fuente de verdad: cada plugin se publica tambié
 | :--- | :--- | :--- | :--- |
 | [`synapse`](plugins/synapse/) | Guardrails de seguridad antes de cada tool: comandos destructivos, escrituras fuera del proyecto, lectura de `.env`, secretos y archivos protegidos (reglas deterministas + clasificador Laya) | Todos | [`agent-plugin-synapse`](https://github.com/bypabloc/agent-plugin-synapse) |
 | [`session-handoff`](plugins/session-handoff/) | Handoff de sesión en disco: lo reinyecta al iniciar y compactar, no deja cerrar el turno con trabajo pendiente y recuerda los hashes de los commits | Todos | [`agent-plugin-session-handoff`](https://github.com/bypabloc/agent-plugin-session-handoff) |
-| [`spanish-latam-style`](plugins/spanish-latam-style/) | Español neutro latinoamericano en respuestas, documentación y commits | Claude Code | [`claude-plugin-spanish-latam`](https://github.com/bypabloc/claude-plugin-spanish-latam) |
+| [`spanish-latam-style`](plugins/spanish-latam-style/) | Español neutro latinoamericano en respuestas, documentación y commits | Claude Code (Codex ejecuta sus hooks) | [`claude-plugin-spanish-latam`](https://github.com/bypabloc/claude-plugin-spanish-latam) |
 
 | Agente | Instalación |
 | :--- | :--- |
