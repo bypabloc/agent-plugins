@@ -52,15 +52,15 @@ claude plugin validate ./mi-plugin --strict
 claude --plugin-dir ./mi-plugin
 
 # Cargar un monorepo con múltiples plugins
-claude --plugin-dir ~/projects/bypabloc/claude-plugins/plugins
+claude --plugin-dir ~/projects/bypabloc/agent-plugins/plugins
 
 # Gestionar marketplaces
-claude plugin marketplace add bypabloc/claude-plugins --scope user
+claude plugin marketplace add bypabloc/agent-plugins --scope user
 claude plugin marketplace list
-claude plugin marketplace update bypabloc
+claude plugin marketplace update bypabloc-agents
 
 # Instalar, habilitar y desinstalar
-claude plugin install spanish-latam-style@bypabloc --scope user
+claude plugin install spanish-latam-style@bypabloc-agents --scope user
 claude plugin enable spanish-latam-style
 claude plugin disable spanish-latam-style
 claude plugin uninstall spanish-latam-style --keep-data

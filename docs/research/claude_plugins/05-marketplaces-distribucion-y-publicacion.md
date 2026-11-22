@@ -115,13 +115,13 @@ Permite registrar repositorios remotos o directorios locales:
 
 ```bash
 # Agregar desde GitHub
-claude plugin marketplace add bypabloc/claude-plugins --scope user
+claude plugin marketplace add bypabloc/agent-plugins --scope user
 
 # Agregar desde un repositorio Git corporativo
 claude plugin marketplace add https://gitlab.empresa.com/ia/plugins.git --scope project
 
 # Agregar desde una carpeta local en desarrollo
-claude plugin marketplace add /home/bypabloc/projects/bypabloc/claude-plugins --scope local
+claude plugin marketplace add ~/projects/bypabloc/agent-plugins --scope local
 ```
 
 ### 2. Listar y Actualizar
@@ -130,13 +130,13 @@ claude plugin marketplace add /home/bypabloc/projects/bypabloc/claude-plugins --
 claude plugin marketplace list
 
 # Actualizar el catálogo descargando la última versión del ref
-claude plugin marketplace update bypabloc
+claude plugin marketplace update bypabloc-agents
 ```
 
 ### 3. Instalar un Plugin Específico desde un Marketplace
 ```bash
 # Sintaxis: <plugin-name>@<marketplace-name>
-claude plugin install spanish-latam-style@bypabloc --scope user
+claude plugin install spanish-latam-style@bypabloc-agents --scope user
 ```
 
 ---
