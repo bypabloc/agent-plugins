@@ -1,4 +1,4 @@
-# Claude Code Plugin: Synapse (`synapse`)
+# Synapse (`synapse`): guardrails para agentes de código
 
 > [!NOTE]
 > Este repo (`bypabloc/agent-plugin-synapse`) es un **espejo** generado desde el monorepo [`bypabloc/agent-plugins`](https://github.com/bypabloc/agent-plugins/tree/main/plugins/synapse). Los issues y pull requests van allí. El soporte para Codex, Antigravity y OpenCode se diseñó en el [spec 001](https://github.com/bypabloc/agent-plugins/tree/synapse-v1.7.0/docs/specs/001-plugins-multi-agente).
@@ -6,10 +6,10 @@
 [![Claude Code Compatible](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://github.com/anthropics/claude-plugins-official)
 [![System 1 AI: Laya Powered](https://img.shields.io/badge/Decision%20Engine-Laya%20System%201-orange)](https://github.com/convaiinnovations/laya)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Marketplace Ready](https://img.shields.io/badge/Marketplace-Verified-success)](https://github.com/bypabloc/claude-plugins)
+[![Marketplace: bypabloc-agents](https://img.shields.io/badge/Marketplace-bypabloc--agents-success)](https://github.com/bypabloc/agent-plugins)
 [![Tests: 100%](https://img.shields.io/badge/Tests-Passing-brightgreen)](tests/)
 
-> **Plugin oficial de seguridad perimetral para Claude Code** que intercepta las operaciones de herramientas en tiempo de ejecución (`PreToolUse` para `Bash`, `Read`, `Edit` y `Write`). Combina firmas heurísticas determinísticas de ultra-alta velocidad (1ms) con inferencia clasificatoria neuronal **System 1 (Laya)** acelerada por GPU/CUDA (~25ms), garantizando **cero consumo de contexto (Zero Context Cost)** y fallback automático transparente sin dependencias forzadas.
+> **Plugin de seguridad perimetral multi-agente (Claude Code, Codex, Antigravity y OpenCode)** que intercepta las operaciones de herramientas en tiempo de ejecución (`PreToolUse` para `Bash`, `Read`, `Edit` y `Write`). Combina firmas heurísticas determinísticas de ultra-alta velocidad (1ms) con inferencia clasificatoria neuronal **System 1 (Laya)** acelerada por GPU/CUDA (~25ms), garantizando **cero consumo de contexto (Zero Context Cost)** y fallback automático transparente sin dependencias forzadas.
 
 ---
 
@@ -83,17 +83,17 @@ Cualquier usuario puede instalar y activar el plugin en Claude Code ejecutando e
 
 ```bash
 # 1. Registrar el marketplace público de bypabloc (solo una vez)
-claude plugin marketplace add bypabloc/claude-plugins
+claude plugin marketplace add bypabloc/agent-plugins
 
 # 2. Instalar y habilitar el plugin
-claude plugin install synapse@bypabloc
+claude plugin install synapse@bypabloc-agents
 ```
 
 > [!NOTE]
 > Si en tu terminal no tienes configuradas llaves SSH para GitHub, puedes utilizar alternativamente la URL HTTPS pública en el primer comando:
 > ```bash
-> claude plugin marketplace add https://github.com/bypabloc/claude-plugins
-> claude plugin install synapse@bypabloc
+> claude plugin marketplace add https://github.com/bypabloc/agent-plugins
+> claude plugin install synapse@bypabloc-agents
 > ```
 
 ### Comprobar la instalación:
@@ -101,7 +101,7 @@ Para verificar que el plugin está activo y ver el registro formal de hooks `Pre
 
 ```bash
 claude plugin list
-claude plugin details synapse@bypabloc
+claude plugin details synapse@bypabloc-agents
 ```
 
 ### En Codex, Antigravity y OpenCode
@@ -150,13 +150,13 @@ python3 scripts/synapse_log.py --follow             # en vivo
 ```
 ━━ 2026-10-02 09:00:56.720 ━━ block_dangerous ━━ run 29e84acc ━━ session 49c43f62
    tool    Bash
-   cwd     /home/bypabloc/projects/bypabloc/claude-plugin-synapse
+   cwd     ~/code/mi-app
    engine  laya-daemon-gpu
-   input   p=/home/bypabloc; rm -rf "$p/otro"
+   input   p=/home/usuario; rm -rf "$p/otro"
    ├─ regex.catastrophic       result=no_match  checked=21
-   ├─ structure.outside_project  result=match  subcmd=rm -rf "$p/otro"  target=/home/bypabloc/otro  roots=[...]
-   └─ DECISION  BLOCK  python · structure.outside_project  (7.6 ms)  Prohibido modificar rutas fuera del proyecto (...): 'rm' sobre /home/bypabloc/otro.
-      evidencia  {"subcmd": "rm -rf \"$p/otro\"", "target": "/home/bypabloc/otro", "roots": ["..."]}
+   ├─ structure.outside_project  result=match  subcmd=rm -rf "$p/otro"  target=/home/usuario/otro  roots=[...]
+   └─ DECISION  BLOCK  python · structure.outside_project  (7.6 ms)  Prohibido modificar rutas fuera del proyecto (...): 'rm' sobre /home/usuario/otro.
+      evidencia  {"subcmd": "rm -rf \"$p/otro\"", "target": "/home/usuario/otro", "roots": ["..."]}
 ```
 
 ### Configuración de Variables de Entorno:

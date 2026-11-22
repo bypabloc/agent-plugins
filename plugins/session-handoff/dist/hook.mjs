@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 
 // hooks/handoff.ts
-var VERSION = "0.5.3";
+var VERSION = "0.5.4";
 var FILES = ["PROGRESS.md", "DECISIONS.md", "NOTES.md"];
 var PHASES = ["implementation", "verification", "integration", "external-wait", "closing"];
 var LINE_MAX = 120;

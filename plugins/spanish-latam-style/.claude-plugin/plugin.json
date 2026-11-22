@@ -1,6 +1,6 @@
 {
   "name": "spanish-latam-style",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aplica y refuerza el uso estricto de español neutro latinoamericano estándar (tuteo profesional, sin voseo ni modismos regionales) en interacciones, documentación, commits y código en Claude Code.",
   "author": {
     "name": "Pablo Contreras",
