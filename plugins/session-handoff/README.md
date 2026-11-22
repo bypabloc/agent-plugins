@@ -5,7 +5,7 @@
 
 Plugin multi-agente (Claude Code, Codex, Antigravity y OpenCode) para **sesiones largas y trabajo con varios agentes**. Guarda el estado de cada trabajo en disco (`tmp/handoff/<trabajo>/`), lo vuelve a inyectar al iniciar, reanudar y compactar, no deja cerrar el turno mientras quede un siguiente paso y compacta sin pedirle un resumen al modelo. El estado del trabajo se ve en el spinner y en una banda sobre el prompt.
 
-En Claude Code es un mod escrito en TypeScript: **no necesita Python, Node ni nada instalado** (en Codex y Antigravity requiere Node 20 o superior; ver abajo), funciona igual en Windows, macOS y Linux, y en cualquier proyecto con git (sin git también, tomando la carpeta actual como raíz). Nació en dos proyectos propios (klinikae y content-studio) y se separó de ellos para usarlo en cualquiera.
+En Claude Code es un mod escrito en TypeScript: **no necesita Python, Node ni nada instalado** (en Codex y Antigravity requiere Node 20 o superior; ver abajo), funciona igual en Windows, macOS y Linux, y en cualquier proyecto con git (sin git también, tomando la carpeta actual como raíz). Nació en dos proyectos propios y se separó de ellos para usarlo en cualquiera.
 
 ## Instalación
 
@@ -145,6 +145,7 @@ claude --plugin-dir .         # probarlo en una sesión sin instalarlo
 El detalle de cada versión (síntoma, causa, prueba y lección), la vigilancia en sesiones reales y lo aprendido están en [docs/bitacora/](docs/bitacora/).
 
 * **0.5.4**: solo documentación: la instalación usa el marketplace `bypabloc-agents` (`bypabloc/agent-plugins`) y la introducción aclara que Node 20+ solo hace falta en Codex y Antigravity.
+* **0.5.5**: solo documentación: el README ya no nombra los proyectos donde nació el plugin.
 * **0.5.3**: un `Stop` que Codex continúa en el mismo turno vuelve a leer `PROGRESS.md`: una fase `external-wait` escrita tras un bloqueo ya libera, y sin cambios la parada llega al tope en vez de repetirse.
 * **0.5.2**: el hash del commit se busca en el directorio del último `cd` antes del `git commit` (no en el primero), y un heredoc o un texto entre comillas que nombra `git commit` ya no cuenta como commit.
 * **0.5.1**: un `git commit -q` que falla (por ejemplo, en un hook de pre-commit) ya no pide anotar el HEAD anterior: el hash de `git log -1` solo cuenta si ese commit tiene menos de 10 minutos.
