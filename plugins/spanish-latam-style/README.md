@@ -1,8 +1,8 @@
-# Claude Code Plugin: Spanish LATAM Style (`spanish-latam-style`)
+# Spanish LATAM Style (`spanish-latam-style`)
 
 [![Claude Code Compatible](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://github.com/anthropics/claude-plugins-official)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Marketplace Ready](https://img.shields.io/badge/Marketplace-Verified-success)](https://github.com/bypabloc/claude-plugins)
+[![Marketplace: bypabloc-agents](https://img.shields.io/badge/Marketplace-bypabloc--agents-success)](https://github.com/bypabloc/agent-plugins)
 [![Tests: 100%](https://img.shields.io/badge/Tests-Passing-brightgreen)](tests/)
 
 > **Plugin oficial para Claude Code** que aplica, refuerza y audita de manera continua el uso de **español neutro latinoamericano estándar** (registro profesional, tuteo técnico, sin voseo ni modismos regionales) en respuestas de terminal, documentación técnica, mensajes de commit y comentarios de código.
@@ -73,17 +73,17 @@ Cualquier usuario puede instalar y activar el plugin en Claude Code ejecutando e
 
 ```bash
 # 1. Registrar el marketplace público de bypabloc (solo una vez)
-claude plugin marketplace add bypabloc/claude-plugins
+claude plugin marketplace add bypabloc/agent-plugins
 
 # 2. Instalar y habilitar el plugin
-claude plugin install spanish-latam-style@bypabloc
+claude plugin install spanish-latam-style@bypabloc-agents
 ```
 
 > [!NOTE]
 > Si en tu terminal no tienes configuradas llaves SSH para GitHub, puedes utilizar alternativamente la URL HTTPS pública en el primer comando:
 > ```bash
-> claude plugin marketplace add https://github.com/bypabloc/claude-plugins
-> claude plugin install spanish-latam-style@bypabloc
+> claude plugin marketplace add https://github.com/bypabloc/agent-plugins
+> claude plugin install spanish-latam-style@bypabloc-agents
 > ```
 
 ### Comprobar la instalación:

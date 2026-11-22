@@ -7,7 +7,7 @@ vio y qué hacer.
 
 - **Un scope `project` tapa al de `user`.** Un proyecto tenía su propia instalación fijada en 0.2.0 y sus sesiones
   escribían eventos sin `v` aunque la global estaba en 0.4.0. `claude plugin update -s user` no la toca: hay que
-  correr `claude plugin update session-handoff@bypabloc -s project` desde la carpeta del proyecto. Revisa
+  correr `claude plugin update session-handoff@bypabloc-agents -s project` desde la carpeta del proyecto. Revisa
   `installed_plugins.json` del perfil para ver todos los scopes. (2026-11-19)
 - **Instalar no es cargar.** Tras actualizar, cada sesión abierta sigue con la versión vieja hasta
   `/reload-plugins`; el campo `v` de sus eventos lo confirma. (2026-11-19)
